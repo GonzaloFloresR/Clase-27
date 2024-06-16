@@ -1,6 +1,6 @@
-const cartsModelo = require("./models/CartModel.js");
+import cartsModelo from "./models/CartModel.js";
 
-class CartsMongoDAO {
+export default class CartsMongoDAO {
 
     async getCarritos(limit=10){
         try {
@@ -61,4 +61,3 @@ class CartsMongoDAO {
     }
 
 }
-module.exports = CartsMongoDAO;

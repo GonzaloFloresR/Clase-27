@@ -1,10 +1,8 @@
-const { Router } = require("express");
+import { Router } from "express";
+import passport from "passport";
+import  auth from "../middleware/auth.js";
+
 const router = Router();
-const passport = require("passport");
-
-//const { generaHash, validaPassword } = require("../utils.js");
-const auth = require("../middleware/auth.js");
-
 
 router.get("/error",(req, res) => {
     res.setHeader("Content-Type","application/json");
@@ -54,5 +52,4 @@ router.get("*", (req, res) => {
     res.status(404).json({error:"Recurso no Encontrato"});
 })
 
-
-module.exports = router;
+export default router;

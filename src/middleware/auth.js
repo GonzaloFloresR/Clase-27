@@ -6,4 +6,4 @@ const auth = (req, res, next) => {
     next();
 }
 
-module.exports = auth;
+export default auth;

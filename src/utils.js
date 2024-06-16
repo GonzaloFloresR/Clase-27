@@ -1,5 +1,11 @@
-const multer = require("multer");
-const bcrypt = require("bcrypt");
+import multer from "multer";
+import bcrypt from "bcrypt";
+
+import {fileURLToPath} from 'url';
+import { dirname } from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+export const __dirname = dirname(__filename);
 
 const storage = multer.diskStorage({
     destination:(request, file, cb) => {
@@ -10,10 +16,7 @@ const storage = multer.diskStorage({
     }
 });
 
+export const generaHash = password => bcrypt.hashSync(password, bcrypt.genSaltSync(10));
+export const validaPassword = (password, passwordHash) => bcrypt.compareSync(password, passwordHash);
 
-const generaHash = password => bcrypt.hashSync(password, bcrypt.genSaltSync(10));
-const validaPassword = (password, passwordHash) => bcrypt.compareSync(password, passwordHash);
-
-const uploader = multer({storage: storage});
-
-module.exports = {uploader, generaHash, validaPassword};
+export const uploader = multer({storage: storage});

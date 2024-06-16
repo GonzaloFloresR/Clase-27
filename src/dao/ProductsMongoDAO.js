@@ -1,6 +1,6 @@
-const productoModelo = require("./models/ProductModel");
+import productoModelo from "./models/ProductModel.js";
 
-class ProductsMongoDAO {
+export default class ProductsMongoDAO {
     
     async getProducts(limit=10,page=1,sort){
         let filter;
@@ -51,5 +51,3 @@ class ProductsMongoDAO {
     }
 
 }
-
-module.exports = ProductsMongoDAO;

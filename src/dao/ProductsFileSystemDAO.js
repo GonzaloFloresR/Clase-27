@@ -1,6 +1,6 @@
-const fs = require("fs");
+import fs from "fs";
 
-class ProductsFileSystemDAO {
+export default class ProductsFileSystemDAO {
     #products;
     #path;
 
@@ -129,5 +129,3 @@ class ProductsFileSystemDAO {
     }
 
 }
-
-module.exports = ProductsFileSystemDAO;

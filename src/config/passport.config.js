@@ -1,9 +1,10 @@
-const passport = require("passport");
-const local = require("passport-local");
-const GitHub = require("passport-github2");
-const UsersDAO = require("../dao/UsersMongoDAO.js");
-const CartsDAO = require("../dao/CartsMongoDAO.js");
-const {generaHash, validaPassword} = require("../utils.js"); 
+import passport from "passport";
+import local from "passport-local";
+import GitHub from "passport-github2";
+import UsersDAO from "../dao/UsersMongoDAO.js";
+import CartsDAO from "../dao/CartsMongoDAO.js";
+import {generaHash, validaPassword} from "../utils.js"; 
+import config from "../config/config.js"
 
 const cartsDAO = new CartsDAO();
 const usersDAO = new UsersDAO();
@@ -14,8 +15,8 @@ const initPassport = () => {
         "github",
         new GitHub.Strategy(
             {
-                clientID:"Iv23liK3HzRiINoNgoC7",
-                clientSecret:"73c63df9be3b7f02010a523cafa995cebb8d4ec8",
+                clientID: config.GITHUB_CLIENT_ID,
+                clientSecret: config.GITHUB_CLIENT_SECRET,
                 callbackURL:"http://localhost:8080/api/sessions/callbackGithub"
             },
             async(tokenAcceso, tokenRefresh, profile, done) => {
@@ -89,7 +90,7 @@ const initPassport = () => {
             },
             async(username, password, done) => {
                 try { 
-                        existeUsuario = await usersDAO.getUsuarioBy({"email":username});
+                        let existeUsuario = await usersDAO.getUsuarioBy({"email":username});
                         if (!existeUsuario){
                             return done(null, false);
                         } else {
@@ -106,7 +107,6 @@ const initPassport = () => {
             })
     );
 
-    
     passport.serializeUser((usuario, done) => {
         return done(null, usuario._id)
     });
@@ -115,7 +115,6 @@ const initPassport = () => {
         let usuario = await usersDAO.getUsuarioBy({_id:id});
         return done(null, usuario)
     });
-
 }
 
-module.exports = initPassport;
+export default initPassport;

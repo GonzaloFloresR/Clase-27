@@ -1,4 +1,4 @@
-const dotenv = require("dotenv");
+import dotenv from "dotenv";
 
 dotenv.config(
     {
@@ -11,7 +11,9 @@ const config = {
         PORT: process.env.PORT||8080,
         MONGO_URL: process.env.MONGO_URL,
         DB_NAME: process.env.DB_NAME,
-        SECRET: process.env.SECRET
+        SECRET: process.env.SECRET,
+        GITHUB_CLIENT_ID: process.env.GITHUB_CLIENT_ID,
+        GITHUB_CLIENT_SECRET: process.env.GITHUB_CLIENT_SECRET
 }
 
-module.exports = config;
+export default config;

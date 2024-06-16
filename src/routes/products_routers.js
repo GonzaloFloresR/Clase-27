@@ -1,10 +1,9 @@
-const { Router } = require("express");
-const router = Router();
-const ProductsController = require("../controller/ProductsController.js");
-const uploader = require("../utils.js").uploader;
-const {isValidObjectId} = require("mongoose");
-const auth = require("../middleware/auth.js");
+import { Router } from "express";
+import ProductsController from "../controller/ProductsController.js";
+import { uploader } from "../utils.js";
+import auth from "../middleware/auth.js";
 
+const router = Router();
 
 const entorno = async () => {
     
@@ -32,4 +31,4 @@ const entorno = async () => {
 
 entorno();
 
-module.exports = router;
+export default router;

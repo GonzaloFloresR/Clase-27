@@ -1,10 +1,8 @@
-const { Router }= require("express");
+import { Router } from "express";
+import CartsController from "../controller/CartsController.js";
+import auth from "../middleware/auth.js";
+
 const router = Router();
-
-const CartsController = require("../controller/CartsController.js")
-const {isValidObjectId} = require("mongoose");
-const auth = require("../middleware/auth.js");
-
 
 const entorno = async() => { 
     
@@ -27,8 +25,8 @@ const entorno = async() => {
 
     router.delete("/:cid/products/:pid", CartsController.deleteProductFromCart );
 
-} //cerrando entorno async
+} 
 
 entorno();
 
-module.exports = router;
+export default router;

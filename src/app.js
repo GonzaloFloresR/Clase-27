@@ -1,22 +1,24 @@
-const express = require("express");
-const session = require("express-session");
-const MongoStore = require("connect-mongo");
-const mongoose = require("mongoose");
-const path = require('path');
-const {engine} = require("express-handlebars");
-const {Server} = require("socket.io");
-const cookieParser = require("cookie-parser");
-const passport = require("passport");
+import express from "express";
+import session from "express-session";
+import MongoStore from "connect-mongo";
+import mongoose from "mongoose";
+import path from "path";
+import { __dirname } from "./utils.js"
 
-const config = require("./config/config.js");
-const initPassport = require("./config/passport.config.js");
+import {engine} from "express-handlebars";
+import {Server} from "socket.io";
+import cookieParser from "cookie-parser";
+import passport from "passport";
 
-const mensajesModelo = require("./dao/models/MenssageModel.js");
+import config from "./config/config.js";
+import initPassport from "./config/passport.config.js";
 
-const productsRouter = require("./routes/products_routers.js");
-const cartRouter = require("./routes/carts_router.js");
-const vistasRouter = require("./routes/views_router.js");
-const sessionRouter = require("./routes/session_router.js");
+import mensajesModelo from "./dao/models/MenssageModel.js";
+
+import productsRouter from "./routes/products_routers.js";
+import cartsRouter from "./routes/carts_router.js";
+import vistasRouter from "./routes/views_router.js";
+import sessionRouter from "./routes/session_router.js";
 
 const PORT = config.PORT;
 const app = express();
@@ -54,7 +56,7 @@ app.use("/api/products/", (req, res, next) => {
     },
     productsRouter
 ); 
-app.use("/api/carts/", cartRouter);
+app.use("/api/carts/", cartsRouter);
 app.use("/", vistasRouter);
 app.use("/api/sessions/", sessionRouter);
 

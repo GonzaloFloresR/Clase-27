@@ -1,5 +1,5 @@
-const mongoose = require("mongoose");
-const paginate = require("mongoose-paginate-v2");
+import mongoose from "mongoose";
+import paginate from "mongoose-paginate-v2";
 
 const usuarioCollection = "usuarios";
 const usuarioEsquema = new mongoose.Schema({
@@ -22,5 +22,4 @@ const usuariosModelo = mongoose.model(
     usuarioEsquema
 );
 
-
-module.exports = usuariosModelo;
+export default usuariosModelo;

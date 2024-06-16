@@ -1,10 +1,9 @@
-const ProductDAO = require("../dao/ProductsMongoDAO.js");
+import ProductDAO from "../dao/ProductsMongoDAO.js";
+import { isValidObjectId } from "mongoose";
+
 const productDAO =  new ProductDAO();
-const uploader = require("../utils.js").uploader;
-const {isValidObjectId} = require("mongoose");
 
-
-class ProductsController{
+export default class ProductsController {
     static getProducts = async(request, response) => {
         let {limit, page, sort} = request.query;
         if(sort){
@@ -301,5 +300,3 @@ class ProductsController{
             }
     }
 }
-
-module.exports = ProductsController;

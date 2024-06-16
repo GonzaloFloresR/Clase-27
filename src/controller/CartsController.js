@@ -1,10 +1,11 @@
-const CartsDAO = require("../dao/CartsMongoDAO.js");
-const cartsDAO = new CartsDAO();
-const ProductDAO = require("../dao/ProductsMongoDAO.js");
-const productDAO =  new ProductDAO();
-const {isValidObjectId} = require("mongoose");
+import CartsDAO from "../dao/CartsMongoDAO.js";
+import ProductDAO from "../dao/ProductsMongoDAO.js";
+import { isValidObjectId } from "mongoose";
 
-class CartsController {
+const cartsDAO = new CartsDAO();
+const productDAO =  new ProductDAO();
+
+export default class CartsController {
     static getCart = async (request, response) => {
         try {
             let carrito = await cartsDAO.getCarritos();
@@ -289,5 +290,3 @@ class CartsController {
         }
     }
 }
-
-module.exports = CartsController;

@@ -1,4 +1,4 @@
-const usuariosModelo = require("./models/UsuarioModel.js");
+import usuariosModelo from "./models/UsuarioModel.js";
 
 class UsersMongoDAO {
 
@@ -14,4 +14,4 @@ class UsersMongoDAO {
 
 }
 
-module.exports = UsersMongoDAO;
+export default UsersMongoDAO;
