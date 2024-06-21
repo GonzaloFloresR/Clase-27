@@ -1,9 +1,10 @@
 import { isValidObjectId } from"mongoose";
 import { productsService } from "../repository/productsService.js";
-import CartsDAO from"../dao/CartsMongoDAO.js";
+import { cartsService } from "../repository/cartsService.js";
+//import CartsDAO from"../dao/CartsMongoDAO.js";
 
 
-const cartsDAO = new CartsDAO(); 
+//const cartsDAO = new CartsDAO(); 
 
 export default class ViewController {
 
@@ -167,7 +168,7 @@ export default class ViewController {
                     author:"Gonzalo Flores"
         }
         try { 
-            let carrito = await cartsDAO.getCarritoById({_id:cid});
+            let carrito = await cartsService.getCartByID_Populate(cid);
     
             res.setHeader("Content-Type","text/html");
             return res.status(200).render("carrito",{carrito, datos, login:req.session.usuario});

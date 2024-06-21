@@ -1,14 +1,16 @@
-import CartsDAO from "../dao/CartsMongoDAO.js";
-import ProductDAO from "../dao/ProductsMongoDAO.js";
+//import CartsDAO from "../dao/CartsMongoDAO.js";
+import { cartsService } from "../repository/cartsService.js";
+import { productsService } from "../repository/productsService.js"
+//import ProductDAO from "../dao/ProductsMongoDAO.js";
 import { isValidObjectId } from "mongoose";
 
-const cartsDAO = new CartsDAO();
-const productDAO =  new ProductDAO();
+//const cartsDAO = new CartsDAO();
+//const productDAO =  new ProductDAO();
 
 export default class CartsController {
     static getCart = async (request, response) => {
         try {
-            let carrito = await cartsDAO.getCarritos();
+            let carrito = await cartsService.getCarts();
             if(carrito){
                 response.setHeader('Content-Type','application/json');
                 return response.status(200).json(carrito);
@@ -35,7 +37,7 @@ export default class CartsController {
             return response.json({error:"Ingrese un ID Valido de Mongo"});
         } else {
             try {
-                let carrito = await cartsDAO.getCarritoById({"_id":cid});
+                let carrito = await cartsService.getCartByID_Populate(cid);
                 if(carrito){
                     response.setHeader('Content-Type','application/json');
                     return response.status(200).json(carrito.products);
@@ -62,7 +64,7 @@ export default class CartsController {
         }
 
         try {
-            let agregado = await cartsDAO.crearCarrito({products});
+            let agregado = await cartsService.createNewCart({products});
             if(agregado){
                 response.setHeader('Content-Type','application/json');
                 return response.status(201).json(agregado);
@@ -96,7 +98,7 @@ export default class CartsController {
         let pids = products.map(produ => produ.productId);
         let carrito;
         try {
-            carrito = await cartsDAO.getCarritoById({"_id":cid});
+            carrito = await cartsService.getCartByID_Populate(cid);
         }
         catch(error){console.log(error.message)}
         
@@ -110,13 +112,13 @@ export default class CartsController {
             try {
                 let ProductosNormalizados = [];
                 for (const produ of products) {
-                    let produActual = await productDAO.getProductBy({"_id": produ.productId}); 
+                    let produActual = await productsService.getProductBy({"_id": produ.productId}); 
 
                     quantity = produ.quantity;
                     ProductosNormalizados.push({"productId": produActual, "quantity": quantity});
                 }
                 let Updated = [...ArrayCarrito, ...ProductosNormalizados];                
-                let resuelto = await cartsDAO.updateCart(cid,{$set:{"products":Updated}});
+                let resuelto = await cartsService.updateCart(cid,{$set:{"products":Updated}});
                 if(resuelto){
                     response.setHeader('Content-Type','application/json');
                     return response.status(200).json({status:"Productos Agregados"});
@@ -138,7 +140,7 @@ export default class CartsController {
                 }
             }
             try {
-                let resuelto = await cartsDAO.updateCart(cid,{$set:{"products":ArrayCarrito}});
+                let resuelto = await cartsService.updateCart(cid,{$set:{"products":ArrayCarrito}});
                 if(resuelto){
                     response.setHeader('Content-Type','application/json');
                     return response.status(200).json({succes:"Productos agregado con existo"});
@@ -163,7 +165,7 @@ export default class CartsController {
         } 
         let carrito;
         try {
-            carrito = await cartsDAO.getCarritoById({_id:cid});
+            carrito = await cartsService.getCartByID_Populate(cid);
             if(!carrito){
                 response.setHeader('Content-Type','application/json');
                 return response.status(400).json({error:`El carrito con ID: ${cid} no existe`});
@@ -174,7 +176,7 @@ export default class CartsController {
         }
         let producto;
         try {
-            producto = await productDAO.getProductBy({_id:pid});
+            producto = await productsService.getProductBy({_id:pid});
             if(!producto){
                 response.setHeader('Content-Type','application/json');
                 return response.status(400).json({error:`El producto con ID: ${pid} no existe`});
@@ -188,7 +190,7 @@ export default class CartsController {
         if(ProductoEnCarrito){
             
             try {
-                await productDAO.updateProduct(pid, {"$inc":{"stock":-cantidad}});  
+                await productsService.updateProduct(pid, {"$inc":{"stock":-cantidad}});  
                 ProductoEnCarrito.quantity += cantidad;
             }
             catch(error){error.message} 
@@ -197,7 +199,7 @@ export default class CartsController {
             carrito.products.push({"productId": pid, "quantity":cantidad});
         }
             try {
-                let resuelto = await cartsDAO.updateCart(cid, carrito);
+                let resuelto = await cartsService.updateCart(cid, carrito);
                 if(resuelto){
                     response.setHeader('Content-Type','application/json');
                     return response.status(200).json({status:"succes", message:`Producto ${pid} Agregado en carrito ${cid} `});
@@ -214,7 +216,7 @@ export default class CartsController {
         let {cid} = req.params;
         if(isValidObjectId(cid)){
             try {
-                let Eliminado = await cartsDAO.deleteCarrito(cid);
+                let Eliminado = await cartsService.deleteCart(cid);
                 if(Eliminado){
                     res.setHeader('Content-Type','application/json');
                     return res.status(200).json({status:"succes", Eliminado});
@@ -242,7 +244,7 @@ export default class CartsController {
         } 
         let carrito;
         try {
-            carrito = await cartsDAO.getCarritoById({_id:cid});
+            carrito = await cartsService.getCartByID_Populate(cid);
             if(!carrito){
                 response.setHeader('Content-Type','application/json');
                 return response.status(400).json({error:`El carrito con ID: ${cid} no existe`});
@@ -253,7 +255,7 @@ export default class CartsController {
         }
         let producto;
         try {
-            producto = await productDAO.getProductBy({_id:pid});
+            producto = await productsService.getProductBy({_id:pid});
             if(!producto){
                 response.setHeader('Content-Type','application/json');
                 return response.status(400).json({error:`El producto con ID: ${pid} no existe`});
@@ -268,7 +270,7 @@ export default class CartsController {
             
             if(ProductoEnCarrito.quantity > 1){
                 try {
-                    await productDAO.updateProduct(pid, {"$inc":{"stock":cantidad}});
+                    await productsService.updateProduct(pid, {"$inc":{"stock":cantidad}});
                     ProductoEnCarrito.quantity -= cantidad;
                 }
                 catch(error){error.message}
@@ -276,7 +278,7 @@ export default class CartsController {
                 carrito.products = carrito.products.filter(produ => produ.productId._id != pid);
             }
                 try {
-                    let resuelto = await cartsDAO.updateCart(cid, carrito);
+                    let resuelto = await cartsService.updateCart(cid, carrito);
                     if(resuelto){
                         response.setHeader('Content-Type','application/json');
                         return response.status(200).json({status:"succes", message:`Producto ${pid} Eliminado en carrito ${cid}`});
