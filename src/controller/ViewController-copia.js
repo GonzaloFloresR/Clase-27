@@ -1,8 +1,8 @@
 import { isValidObjectId } from"mongoose";
-import { productsService } from "../repository/productsService.js";
+import ProductsDAO from"../dao/ProductsMongoDAO.js";
 import CartsDAO from"../dao/CartsMongoDAO.js";
 
-
+const productsDAO = new ProductsDAO();
 const cartsDAO = new CartsDAO(); 
 
 export default class ViewController {
@@ -61,7 +61,7 @@ export default class ViewController {
         let {id} = req.query;
         if(!id){
             try { 
-                let {docs:productos} = await productsService.getProducts();
+                let {docs:productos} = await productsDAO.getProducts();
                 let datos = {   
                     title:"Página de Productos",
                     description:"Lista de productos",
@@ -88,7 +88,7 @@ export default class ViewController {
                     author:"Gonzalo Flores"
                 };
                 try {
-                    producto = await productsService.getProductBy({_id:id});
+                    producto = await productsDAO.getProductBy({_id:id});
                     res.setHeader("Content-Type","text/html");
                     return res.status(200).render("home",{producto, datos, id, login:req.session.usuario});
                 } 
@@ -110,7 +110,7 @@ export default class ViewController {
         }
         
         try { 
-            let {docs:productos} = await productsService.getProducts(20,1);
+            let {docs:productos} = await productsDAO.getProducts(20,1);
             res.setHeader("Content-Type","text/html");
             return res.status(200).render("realTimeProducts",{productos, datos, login:req.session.usuario});
         } catch(error){ 
@@ -143,7 +143,7 @@ export default class ViewController {
                     author:"Gonzalo Flores"
         }
         try { 
-            let {docs:productos, ...pageInfo} = await productsService.getProducts(limit,page);
+            let {docs:productos, ...pageInfo} = await productsDAO.getProducts(limit,page);
     
             res.setHeader("Content-Type","text/html");
             return res.status(200).render("products",{productos, datos, pageInfo, mensaje, carrito,login:req.session.usuario});

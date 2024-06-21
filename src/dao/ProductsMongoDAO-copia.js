@@ -2,7 +2,9 @@ import productoModelo from "./models/ProductModel.js";
 
 export default class ProductsMongoDAO {
     
-    async get(limit,page,sort, filter){
+    async getProducts(limit=10,page=1,sort){
+        let filter;
+        if(sort){ filter = "price"; } else {filter = "_id"; sort = 1;} 
         try {
             return await productoModelo.paginate({},{limit, page, sort:{[filter]:sort}, lean:true});
         }
@@ -11,7 +13,7 @@ export default class ProductsMongoDAO {
         }
     }
 
-    async getBy(filtro){
+    async getProductBy(filtro){
         try {
             return await productoModelo.findOne(filtro).lean();
         } catch(error){
@@ -19,7 +21,7 @@ export default class ProductsMongoDAO {
         }
     } 
 
-    async add(nuevoProducto){ 
+    async addProduct(nuevoProducto){ 
         try {
                 let ProductoNuevo =  await productoModelo.create(nuevoProducto);
                 return ProductoNuevo.toJSON();
@@ -29,7 +31,7 @@ export default class ProductsMongoDAO {
             }
     }
 
-    async update(id, Update){
+    async updateProduct(id, Update){
         try {
             return await productoModelo.findByIdAndUpdate({"_id":id},Update,{runValidators:true, returnDocument:"after"});
         }
@@ -38,7 +40,7 @@ export default class ProductsMongoDAO {
         }
     }
 
-    async delete(pid){
+    async deleteProduct(pid){
         try {
             return await productoModelo.deleteOne(pid);
         }

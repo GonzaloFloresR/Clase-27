@@ -1,6 +1,7 @@
-import { productsService } from "../repository/productsService.js";
+import ProductDAO from "../dao/ProductsMongoDAO.js";
 import { isValidObjectId } from "mongoose";
 
+const productDAO =  new ProductDAO();
 
 export default class ProductsController {
 
@@ -23,7 +24,7 @@ export default class ProductsController {
             if(!isNaN(limit)){
                 if(limit > 0){
                     try {
-                        let {docs:productos} = await productsService.getProducts(limit, page, sort);
+                        let {docs:productos} = await productDAO.getProducts(limit, page, sort);
                         response.setHeader('Content-Type','application/json');
                         return response.status(200).json(productos);
                     } catch(error) {
@@ -42,7 +43,7 @@ export default class ProductsController {
         } else { 
             limit=10
             try { 
-                let {docs:productos} = await productsService.getProducts(limit, page, sort);
+                let {docs:productos} = await productDAO.getProducts(limit,page,sort);
                 response.setHeader('Content-Type','application/json');
                 return response.status(200).json(productos);
             } catch(error){ 
@@ -63,7 +64,7 @@ export default class ProductsController {
             return response.status(400).json({erro:'Ingrese un ID valido de MongoDB'})
         } else {
             try {
-                let producto = await productsService.getProductBy({_id:pid});
+                let producto = await productDAO.getProductBy({_id:pid});
                 if(producto){
                     response.setHeader('Content-Type','application/json');
                     return response.status(200).json(producto);
@@ -101,8 +102,7 @@ export default class ProductsController {
         } else {
             code = code.trim();
             try { 
-                existe = await productsService.getProductBy({code:code});
-                console.log(existe, "desde Products 105")
+                existe = await productDAO.getProductBy({code:code});
             }
             catch(error) {
                 console.log(error);
@@ -129,7 +129,7 @@ export default class ProductsController {
                 
                 let agregado
                 try {
-                    agregado = await productsService.addProduct(nuevoProducto);
+                    agregado = await productDAO.addProduct(nuevoProducto);
                 } catch(error) {
                     console.log(error);
                     response.setHeader('Content-Type','application/json');
@@ -145,7 +145,7 @@ export default class ProductsController {
                     
                     let productos;
                     try {
-                        productos = await productsService.getProductBy({_id:agregado._id});
+                        productos = await productDAO.getProductBy({_id:agregado._id});
                         request.io.emit("NuevoProducto", productos);
                         response.setHeader('Content-Type','application/json');
                         return response.status(201).json({payload:agregado}); 
@@ -185,7 +185,7 @@ export default class ProductsController {
                 return response.status(400).json({error:"Ingrese un ID Valido para MongoDB"});
             } else {
                 try {
-                    producto = await productsService.getProductBy({_id:pid});
+                    producto = await productDAO.getProductBy({_id:pid});
                 } catch(error){
                     console.log(error);
                     response.setHeader('Content-Type','application/json');
@@ -206,7 +206,7 @@ export default class ProductsController {
                     }
                     if(modificaciones.code){
                         try {
-                            let existe = await productsService.getProductBy({_id:{$ne:pid},code:modificaciones.code});
+                            let existe = await productDAO.getProductBy({_id:{$ne:pid},code:modificaciones.code});
                             if(existe){
                                 response.setHeader('Content-Type','application/json');
                                 return response.status(400).json({error:`Ya existe un producto con el code ${modificaciones.code}`});
@@ -224,7 +224,7 @@ export default class ProductsController {
                         }
                     }
                     try {
-                        modificado = await productsService.updateProduct(pid, modificaciones);
+                        modificado = await productDAO.updateProduct(pid, modificaciones);
                     } catch(error){
                         console.log(error);
                         response.setHeader('Content-Type','application/json');
@@ -258,7 +258,7 @@ export default class ProductsController {
             } else {
                 let producto;
                 try {
-                    producto = await productsService.getProductBy({_id:pid});
+                    producto = await productDAO.getProductBy({_id:pid});
                 } catch(error){
                     console.log(error);
                     response.setHeader('Content-Type','application/json');
@@ -272,7 +272,7 @@ export default class ProductsController {
                 if(producto){
                     let borrado;
                     try {
-                        borrado = await productsService.deleteProduct({_id:pid});
+                        borrado = await productDAO.deleteProduct({_id:pid});
                     } catch(error){
                         console.log(error);
                         response.setHeader('Content-Type','application/json');
