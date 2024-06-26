@@ -7,7 +7,6 @@ Swal.fire({
     },
     allowOutsideClick:false
 }).then(datos => {
-    
     let nombre = datos.value;
     document.title = `${nombre} Super chat WebSocket 2024`;
     let inputMensaje = document.getElementById("mensaje");
@@ -15,7 +14,6 @@ Swal.fire({
     inputMensaje.focus();
 
     const socket = io();
-
     socket.emit("id", nombre);
 
     socket.on("nuevoUsuario", nombre => {

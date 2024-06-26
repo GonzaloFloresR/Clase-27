@@ -4,14 +4,13 @@ export default class ProductsFileSystemDAO {
     #products;
     #path;
 
-    constructor(rutaDeArchivo){
-
-        this.#path = rutaDeArchivo;
+    constructor(){
+        this.#path = "../../data/productos.json";
         this.inicializar();
     }
 
     async inicializar(){
-        this.#products = await this.#BuscarArchivo();
+        this.#products = await this.#Leer();
     }
 
     #asignarIdProducto(){
@@ -23,7 +22,7 @@ export default class ProductsFileSystemDAO {
     }
 
 
-    #BuscarArchivo = async () => { //Agregue async
+    #Leer = async() => { 
         try {
                 if(fs.existsSync(this.#path)){
                     return this.#products = JSON.parse( await fs.promises.readFile(this.#path, "utf-8"));
@@ -31,31 +30,42 @@ export default class ProductsFileSystemDAO {
                     return [];
                 }
         } catch(error){
-            console.log("Problemas al buscar el archivo ",error);
+            console.log("Problemas al acceder al archivo ", error);
         }
     }
 
-    #guardarArchivo = async () => { //Agregue async
+    #Escribir = async() => { 
         try {
-            await fs.promises.writeFile(this.#path, JSON.stringify(this.#products, null, 5)); // Agregue await y promise y borre writeFileSync
-        } catch(error){
-            console.log("Problemas al guardar el archivo ",error);
+            await fs.promises.writeFile(this.#path, JSON.stringify(this.#products, null, 5)); 
+        } 
+        catch(error){
+            console.log("Problemas al acceder al archivo ", error);
         }
     }
 
-    async addProduct(title, description, price, thumbnail, code, stock){ 
+    get(){
+        return this.#products; //Devolver todos los productos
+    }
+
+    getBy(id){
+        let producto = this.#products.find((prod)=>prod.id === id);
+        return producto? producto : false; //`🛑 Product ID: ${id} Not Found 🛑`
+    } 
+
+    async add(producto){ 
+        let {title, description, price, thumbnail, code, stock} = producto;
 
         if(!title || !description || !price || !code || !stock){
 
-            return `🛑 Se require completar todos los parametros: title, description, price, thumbnail, code, stock`;
+            return `Se require completar todos los parametros: title, description, price, thumbnail, code, stock`;
 
         } else {
 
-            let repetido = this.#products.some( pro => pro.code === code.trim()); //validar que no se repita el code
+            let repetido = this.#products.some( pro => pro.code === code.trim());
 
             if(repetido){
 
-                return false;"🛑 There is already a product with this code 🛑"
+                return false;
 
             } else {
                 
@@ -73,7 +83,7 @@ export default class ProductsFileSystemDAO {
                 
                 this.#products.push(nuevoProducto);
                 try {
-                    await this.#guardarArchivo();
+                    await this.#Escribir();
                 return true;//`✅ Product added successfully ✅`
                 }
                 catch(error){
@@ -84,22 +94,13 @@ export default class ProductsFileSystemDAO {
         }
     }
 
-    getProducts(){
-        return this.#products; //Devolver todos los productos
-    }
-
-    getProductById(id){
-        let producto = this.#products.find((prod)=>prod.id === id);
-        return producto? producto : false; //`🛑 Product ID: ${id} Not Found 🛑`
-    } 
-
-    async updateProduct(id, Update){
+    async update(id, Update){
         const index = this.#products.findIndex((produc) => produc.id === id );
         if(index >= 0){
             const {id, ...rest} = Update;
             this.#products[index] = {...this.#products[index], ...rest};
             try {
-                await this.#guardarArchivo(); 
+                await this.#Escribir(); 
                 return `Archivo Actualizado`;
             }
             catch(error){
@@ -111,12 +112,12 @@ export default class ProductsFileSystemDAO {
         }
     }
 
-    async deleteProduct(pid){
+    async delete(pid){
         const index = this.#products.findIndex((produc) => produc.id === pid );
         if(index >= 0 ){
             this.#products =  this.#products.filter(produc => produc.id !== pid);
             try {
-                await this.#guardarArchivo();
+                await this.#Escribir();
                 return true; //`Producto Eliminado Correctamente ✅`
             }
             catch(error){

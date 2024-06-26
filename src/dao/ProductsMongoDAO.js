@@ -1,6 +1,6 @@
 import productoModelo from "./models/ProductModel.js";
 
-export default class ProductsMongoDAO {
+export class ProductsMongoDAO {
     
     async get(limit,page,sort, filter){
         try {

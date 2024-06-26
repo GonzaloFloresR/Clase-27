@@ -1,8 +1,11 @@
+//import CartsDAO from "../dao/CartsMongoDAO.js";
 import { cartsService } from "../repository/cartsService.js";
 import { productsService } from "../repository/productsService.js"
+//import ProductDAO from "../dao/ProductsMongoDAO.js";
 import { isValidObjectId } from "mongoose";
 
-
+//const cartsDAO = new CartsDAO();
+//const productDAO =  new ProductDAO();
 
 export default class CartsController {
     static purchase = async (req, res) => {
@@ -159,7 +162,7 @@ export default class CartsController {
 
     static modifyCartProducsById = async(request, response) => {
         let {cid,pid }= request.params
-        let {cantidad} = request.body; //No tiene de donde salir por ahora desde el VIEW
+        let {cantidad} = request.body; //No tiene de donde salir por ahora
         
         if(!cantidad || typeof cantidad != Number){
             cantidad = 1;
@@ -192,11 +195,6 @@ export default class CartsController {
         catch(error) {
             console.log(error.message)
         }
-        //consultar stock actual del producto
-        if(producto.stock <= 0){
-            response.setHeader('Content-Type','application/json');
-            return response.status(400).json({error:`No hay suficiente stock disponible del producto con ID: ${pid}`});
-        } 
 
         const ProductoEnCarrito = carrito.products.find(produ => produ.productId._id == pid);
         if(ProductoEnCarrito){
@@ -224,31 +222,21 @@ export default class CartsController {
             }
     }
 
-    static deleteCartById = async(req, res) => {
+    static deleteProductById = async(req, res) => {
         let {cid} = req.params;
         if(isValidObjectId(cid)){
-            let carrito = await cartsService.getCartByID_Populate(cid);
-            if(!carrito){
-                res.setHeader('Content-Type','application/json');
-                return res.status(400).json({erro:`No existe carrito con ID ${cid}`});
-            }
-            let productosEnCarrito = carrito.products;
-            for (const producto of productosEnCarrito){
-                let pid = producto.productId._id;
-                let cantidad =  producto.quantity;
-                let elemento = await productsService.getProductBy({_id:pid});
-                elemento.stock += cantidad;
-                await productsService.updateProduct(pid, elemento);
-            }
             try {
                 let Eliminado = await cartsService.deleteCart(cid);
                 if(Eliminado){
                     res.setHeader('Content-Type','application/json');
                     return res.status(200).json({status:"succes", Eliminado});
-                } 
+                } else {
+                    res.setHeader('Content-Type','application/json');
+                    return res.status(400).json({erro:`No existe carrito con ID ${cid}`});
+                }
             }
             catch(error){
-                console.log({error:`Error Al intentar Eliminar el  carrito con ID ${cid}`});
+                console.log(error);
             }
         }
     }

@@ -13,14 +13,14 @@ const entorno = async () => {
     
     router.post("/",uploader.single('thumbnail'), auth, ProductsController.createProduct );
 
-    router.put("/", (req, res) => {
+    router.put("/", auth,(req, res) => {
         res.setHeader('Content-Type','application/json');
         return res.status(400).json({error:`Debe ingresar el ID del producto a modificar`});
     });
 
     router.put("/:pid", auth, ProductsController.modifyProduct);
 
-    router.delete("/", async(request, response) => {
+    router.delete("/", auth,async(request, response) => {
         response.setHeader('Content-Type','application/json');
         return response.status(400).json({error:`Debe ingresar el ID del producto a eliminar`});
     });

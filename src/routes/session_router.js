@@ -1,6 +1,7 @@
 import { Router } from "express";
 import passport from "passport";
 import  auth from "../middleware/auth.js";
+import { UsuarioDTO } from "../dto/UsuarioDTO.js";
 
 const router = Router();
 
@@ -13,21 +14,18 @@ router.get("/github", passport.authenticate("github",{}),(req, res) => {
 });
 
 router.get("/callbackGithub", passport.authenticate("github",{failureRedirect:"/api/sessions/error"}),(req, res) => {
-    req.session.usuario = req.user;
+    let usuario = new UsuarioDTO({...req.user});
+    req.session.usuario = {...usuario}
     return res.status(200).redirect("/products");
 });
 
 router.post("/registro", passport.authenticate("registro",{failureRedirect:"/api/sessions/error"}), async (req, res) => {
-    res.setHeader("Content-Type","application/json");
     return res.status(201).redirect("/login");
 });
 
 router.post("/login", passport.authenticate("login",{failureRedirect:"/api/sessions/error"}), async(req, res) => {
-    let usuario = {...req.user};
-    delete usuario.password;
-    delete usuario.createdAt;
-    delete usuario.updatedAt;
-    req.session.usuario = usuario;
+    let usuario = new UsuarioDTO({...req.user});
+    req.session.usuario = {...usuario};
     return res.status(200).redirect("/products");
 });
 
@@ -44,7 +42,7 @@ router.get("/logout",(req, res) => {
 router.get("/current", auth,(req, res)=>{
     let usuario = req.session.usuario;
     res.setHeader("Content-Type","application/json");
-    return res.status(200).json({login:usuario});
+    return res.status(200).json({usuario});
 });
 
 router.get("*", (req, res) => {

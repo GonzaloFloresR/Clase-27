@@ -1,4 +1,4 @@
-import ProductsMongoDAO from "../dao/ProductsMongoDAO.js";
+import { ProductsMongoDAO as DAO } from "../dao/ProductsMongoDAO.js";
 
 class ProductsService {
     constructor(dao){
@@ -32,4 +32,4 @@ class ProductsService {
     }
 }
 
-export const productsService = new ProductsService(new ProductsMongoDAO());
+export const productsService = new ProductsService(new DAO());

@@ -1,4 +1,4 @@
-import CartsMongoDA0 from "../dao/CartsMongoDAO.js"
+import { CartsMongoDAO as DAO} from "../dao/CartsMongoDAO.js"
 
 class CartsService {
     constructor(dao){
@@ -34,4 +34,4 @@ class CartsService {
     }
 }
 
-export const cartsService = new CartsService(new CartsMongoDA0());
+export const cartsService = new CartsService(new DAO());

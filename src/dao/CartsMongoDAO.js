@@ -1,6 +1,6 @@
 import cartsModelo from "./models/CartModel.js";
 
-export default class CartsMongoDAO {
+export class CartsMongoDAO {
 
     async get(limit){
         try {

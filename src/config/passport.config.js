@@ -1,12 +1,11 @@
 import passport from "passport";
 import local from "passport-local";
 import GitHub from "passport-github2";
+import { cartsService } from "../repository/cartsService.js"
 import UsersDAO from "../dao/UsersMongoDAO.js";
-import CartsDAO from "../dao/CartsMongoDAO.js";
 import {generaHash, validaPassword} from "../utils.js"; 
 import config from "../config/config.js"
 
-const cartsDAO = new CartsDAO();
 const usersDAO = new UsersDAO();
 
 const initPassport = () => {
@@ -29,7 +28,7 @@ const initPassport = () => {
                     }
                     let usuario = await usersDAO.getUsuarioBy({email});
                     if(!usuario){
-                        let cart = await cartsDAO.crearCarrito();
+                        let cart = await cartsService.createNewCart();
                         usuario = await usersDAO.createUsuario({
                             first_name:nombre, email, cart, profile
                         });
@@ -64,7 +63,7 @@ const initPassport = () => {
                         return done(null, false);
                     }
                     
-                    let cart = await cartsDAO.crearCarrito();
+                    let cart = await cartsService.createNewCart();
                     password = generaHash(password);
                     let usuario = {first_name,last_name,age, email:username, password, rol, cart};
                     let nuevoUsuario = await usersDAO.createUsuario(usuario);

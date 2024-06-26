@@ -1,10 +1,6 @@
 import { isValidObjectId } from"mongoose";
 import { productsService } from "../repository/productsService.js";
-import { cartsService } from "../repository/cartsService.js";
-//import CartsDAO from"../dao/CartsMongoDAO.js";
-
-
-//const cartsDAO = new CartsDAO(); 
+import { cartsService } from "../repository/cartsService.js"; 
 
 export default class ViewController {
 

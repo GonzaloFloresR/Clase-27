@@ -5,6 +5,14 @@ const comprar = async(pid) => {
     console.log(`Codigo Producto ${pid} / Código Carrito es ${cid}`);
     try {
         let respuesta = await fetch(`/api/carts/${cid}/products/${pid}`,{method:"put"});
+        if(respuesta.status == 400){
+            let datos = await respuesta.json();
+            Swal.fire({
+                icon: "error",
+                title: "Oops...",
+                text: datos.error,
+            });
+        }
         if(respuesta.status === 200){
         let datos = await respuesta.json();
         Swal.fire({
