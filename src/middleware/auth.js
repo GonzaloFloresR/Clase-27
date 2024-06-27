@@ -1,5 +1,5 @@
 const auth = (req, res, next) => {
-    console.log(req.originalUrl, "Desde auth linea 2")
+    //console.log(req.originalUrl, "Desde auth linea 2")
     if(!req.session.usuario){
         res.setHeader("Content-Type","application/json");
         return res.status(401).json({error:"No existen usuarios autenticados"});

@@ -20,7 +20,7 @@ const entorno = async () => {
 
     router.put("/:pid", auth, ProductsController.modifyProduct);
 
-    router.delete("/", auth,async(request, response) => {
+    router.delete("/", auth, async(request, response) => {
         response.setHeader('Content-Type','application/json');
         return response.status(400).json({error:`Debe ingresar el ID del producto a eliminar`});
     });

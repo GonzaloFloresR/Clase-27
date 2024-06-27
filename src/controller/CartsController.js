@@ -1,16 +1,46 @@
 import { cartsService } from "../repository/cartsService.js";
 import { productsService } from "../repository/productsService.js"
 import { isValidObjectId } from "mongoose";
+import { ticketsService } from "../repository/ticketsService.js";
+
 
 
 
 export default class CartsController {
-    static purchase = async (req, res) => {
+    static purchase = async(req, res) => {
+        if(!req.session.usuario){
+            res.setHeader('Content-Type','application/json');
+            return res.status(400).json({error:`Debe haber un cliente logueado`});
+        }
         let {cid} = req.params;
-        let carrito = await cartsService.getCartsById_NotPopulate(cid);
-        res.setHeader("Content-type","application/json")
-        res.status(200).json({cid:carrito})
+        if(!cid || !isValidObjectId(cid) ){
+            res.setHeader('Content-Type','application/json');
+            return res.status(400).json({error:`Hace falta un id valido de carrito`});
+        }
+        let carrito = await cartsService.getCartByID_Populate(cid);
+        let amount = 0;
+        carrito.products.forEach(producto => {
+            amount +=  producto.quantity * producto.productId.price;
+        });
+
+        let purchaser = req.session.usuario.email;
+        let code = new Date().getTime();
+        let purchase_datetime = new Date();
         
+        //El Stock se verificó antes de agregarlo al carrito ✅
+        let itemized_receipt = {};
+        carrito.products.forEach((producto, index) => {
+            const nombrePropiedad = `prod${index}`;
+            itemized_receipt[nombrePropiedad] = {producto: producto.productId.title, price:producto.productId.price, quantity:producto.quantity};
+        });
+        console.log(itemized_receipt);
+        let ticket = {code, purchase_datetime, itemized_receipt,amount, purchaser}
+        let Newticket = await ticketsService.createNewTicket(ticket);
+        //let eliminarProductos = await cartsService.updateCart(cid,{});
+        //console.log(eliminarProductos);
+
+        res.setHeader('Content-Type','application/json');
+        return res.status(200).json({succes:Newticket, message:`Muchas gracias por su compra ✅`});
     }
 
     static getCart = async (request, response) => {
@@ -159,15 +189,15 @@ export default class CartsController {
 
     static modifyCartProducsById = async(request, response) => {
         let {cid,pid }= request.params
-        let {cantidad} = request.body; //No tiene de donde salir por ahora desde el VIEW
-        
+        let {cantidad} = request.body;
+        cantidad = Number(cantidad);
         if(!cantidad || typeof cantidad != Number){
             cantidad = 1;
         }
         
         if(!isValidObjectId(cid) || !isValidObjectId(pid) ){
             response.setHeader('Content-Type','application/json');
-            return response.status(400).json({error:"Ingrese un ID de Carrito y ID de Producto validos"});
+            return response.status(400).json({error:"Verifique que los IDs ingresados sean validos"});
         } 
         
         let carrito;
@@ -200,10 +230,9 @@ export default class CartsController {
 
         const ProductoEnCarrito = carrito.products.find(produ => produ.productId._id == pid);
         if(ProductoEnCarrito){
-            
             try {
                 await productsService.updateProduct(pid, {"$inc":{"stock":-cantidad}});  
-                ProductoEnCarrito.quantity += cantidad;
+                ProductoEnCarrito.quantity = cantidad + ProductoEnCarrito.quantity;
             }
             catch(error){error.message} 
             
@@ -214,13 +243,13 @@ export default class CartsController {
                 let resuelto = await cartsService.updateCart(cid, carrito);
                 if(resuelto){
                     response.setHeader('Content-Type','application/json');
-                    return response.status(200).json({status:"succes", message:`Producto ${pid} Agregado en carrito ${cid} `});
+                    return response.status(200).json({"succes":`${cantidad} Producto/s ${pid}, agregado/s en carrito ${cid}`});
                 }
             }
             catch(error){
                 error.message
                 response.setHeader('Content-Type','application/json');
-                return response.status(400).json({status:"error", message:`Producto ${pid} no se logro agregar en carrito ${cid}`});
+                return response.status(400).json({error:`Error inesperado en el servidor al intentar agregar productos al carrito`});
             }
     }
 
@@ -254,12 +283,9 @@ export default class CartsController {
     }
 
     static deleteProductFromCart = async(request, response) => {
-        let {cid,pid }= request.params
-        let cantidad = request.body;
-        if(!cantidad || typeof cantidad != Number){
-            cantidad = 1;
-        }
-        
+        let {cid,pid } = request.params;
+        let {cantidad} = request.body;
+
         if(!isValidObjectId(cid) || !isValidObjectId(pid) ){
             response.setHeader('Content-Type','application/json');
             return response.status(400).json({error:"Ingrese un ID de Carrito y ID de Producto validos"});
@@ -286,31 +312,35 @@ export default class CartsController {
         catch(error) {
             console.log(error.message)
         }
-        
         const ProductoEnCarrito = carrito.products.find(produ => produ.productId._id == pid);
-        if(ProductoEnCarrito){
-            
-            if(ProductoEnCarrito.quantity > 1){
-                try {
-                    await productsService.updateProduct(pid, {"$inc":{"stock":cantidad}});
-                    ProductoEnCarrito.quantity -= cantidad;
-                }
-                catch(error){error.message}
-            } else {
-                carrito.products = carrito.products.filter(produ => produ.productId._id != pid);
+        if(!ProductoEnCarrito){
+            response.setHeader('Content-Type','application/json');
+            return response.status(400).json({error:`No existe producto ${pid} en el carrito ${cid}`});
+        }
+        if(ProductoEnCarrito.quantity >= cantidad){
+            try {
+                await productsService.updateProduct(pid, {"$inc":{"stock":cantidad}});
+                ProductoEnCarrito.quantity = ProductoEnCarrito.quantity - cantidad;
             }
-                try {
-                    let resuelto = await cartsService.updateCart(cid, carrito);
-                    if(resuelto){
-                        response.setHeader('Content-Type','application/json');
-                        return response.status(200).json({status:"succes", message:`Producto ${pid} Eliminado en carrito ${cid}`});
-                    }
-                }
-                catch(error){
-                    error.message
-                    response.setHeader('Content-Type','application/json');
-                    return response.status(400).json({status:"error", message:`Producto ${pid} no se logro agregar en carrito ${cid}`});
-                }
+            catch(error){error.message}
+        } else if(ProductoEnCarrito.quantity < cantidad){
+            response.setHeader('Content-Type','application/json');
+            return response.status(400).json({error:`No se pueden eliminar más productos de los que hay en el carrito ${cid}`});
+        }
+        if(ProductoEnCarrito.quantity < 1){
+                carrito.products = carrito.products.filter(produ => produ.productId._id != pid);
+        }
+        try {
+            let resuelto = await cartsService.updateCart(cid, carrito);
+            if(resuelto){
+                response.setHeader('Content-Type','application/json');
+                return response.status(200).json({"succes":`Se elimino: ${cantidad} Producto/s ${pid} del carrito ${cid}`});
+            }
+        }
+        catch(error){
+            error.message
+            response.setHeader('Content-Type','application/json');
+            return response.status(400).json({error:`Error inesperado en el servidor intentando borrar un producto del carrito`});
         }
     }
 }

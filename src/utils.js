@@ -20,3 +20,13 @@ export const generaHash = password => bcrypt.hashSync(password, bcrypt.genSaltSy
 export const validaPassword = (password, passwordHash) => bcrypt.compareSync(password, passwordHash);
 
 export const uploader = multer({storage: storage});
+
+export const formatearMoneda = (valor) => {
+    const opciones = {
+        style: 'currency',
+        currency: 'CLP',
+        minimumFractionDigits: 0, // Opcional: para evitar decimales
+    };
+    const formatoMoneda = new Intl.NumberFormat('es-CL', opciones);
+    return formatoMoneda.format(valor);
+}

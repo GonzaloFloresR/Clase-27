@@ -5,16 +5,16 @@ class TicketsService {
         this.TicketsDao = dao;
     }
 
-    async getTickets(limit=10){
-        return await this.TicketsDao.get(limit);
+    async getTickets(){
+        return await this.TicketsDao.get();
     }
 
     async getTicketBy(filter){
         return await this.TicketsDao.getBy(filter);
     }
 
-    async createNewTicket(NewCart){
-        return await this.CartsDao.create(NewCart);
+    async createNewTicket(NewTicket){
+        return await this.TicketsDao.create(NewTicket);
     }
 }
 

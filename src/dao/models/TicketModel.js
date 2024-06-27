@@ -9,8 +9,7 @@ const ticketsEsquema = new mongoose.Schema(
         purchaser: String
     },
     {
-        timestamps:true,
-        strict:true
+        timestamps:true
     }
 );
 

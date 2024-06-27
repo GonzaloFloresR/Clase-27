@@ -1,6 +1,8 @@
 import { Router } from"express";
 import auth from"../middleware/auth.js";
-import ViewController from "../controller/ViewController.js"
+import ViewController from "../controller/ViewController.js";
+import cartsAuth from "../middleware/cartsAuth.js";
+
 
 const router = Router();
 
@@ -20,7 +22,7 @@ router.get("/login",(req, res, next) => {
 
 router.get("/perfil", auth, ViewController.getPerfil);
 
-router.get("/chat", ViewController.getChat);
+router.get("/chat", cartsAuth,ViewController.getChat);
 
 router.get("/home", ViewController.getHome);
 

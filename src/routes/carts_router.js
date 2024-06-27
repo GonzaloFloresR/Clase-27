@@ -14,7 +14,7 @@ const entorno = async() => {
 
     router.post("/", CartsController.createCart );
 
-    router.put("/:cid", CartsController.modifyProductById );
+    router.put("/:cid", cartsAuth, CartsController.modifyProductById );
 
     router.put("/:cid/products/:pid", cartsAuth, CartsController.modifyCartProducsById );
 
@@ -25,7 +25,7 @@ const entorno = async() => {
 
     router.delete("/:cid", CartsController.deleteCartById );
 
-    router.delete("/:cid/products/:pid", CartsController.deleteProductFromCart );
+    router.delete("/:cid/products/:pid",CartsController.deleteProductFromCart );
 
 } 
 
