@@ -477,3 +477,96 @@ label {
 ::-webkit-scrollbar-thumb:hover {
     background:  rgba(255, 0, 0, 0.5); 
 }
+
+#carrito {
+    background-color: white;
+    width: 60%;
+}
+.itemCarrito {
+    overflow: hidden;
+    display: flex;
+    flex-direction: row;
+    height: 60px;
+    font-size: 16px;
+}
+
+.itemCarrito li {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px 0px;
+    border-bottom: 1px solid rgba(226,226,226);
+    border-left: 1px solid rgba(226,226,226);
+}
+
+.itemCarrito img {
+    height: 60px;
+}
+.itemCarrito li.eliminar {
+    width: 40px;
+}
+
+.itemCarrito li.eliminar:hover {
+    background-color: rgba(255, 0, 0, 0.15);
+} 
+
+.itemCarrito li:first-child {
+    width: 62%;
+}
+
+.itemCarrito li:nth-child(2){
+    width: 125px;
+}
+
+.itemCarrito li:nth-child(3){
+    width: 135px;
+}
+
+.itemCarrito li:nth-child(4){
+    width: 95px;
+}
+
+li.eliminar button {
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+.itemCarrito li input[type="text"]{
+    width: 40px;
+    height: 25px;
+    border: none;
+    text-align: center;
+    line-height: 25px;
+    font-size: 16px;
+}
+
+.itemCarrito li input[type="button"]{
+    height: 25px;
+    background: none;
+    color: rgb(53, 124, 238);
+    border: none;
+    font-size: 25px;
+    cursor:pointer;
+}
+
+.itemCarrito li .CantidadProducto {
+    border: solid 1px rgb(173, 173, 173);
+    padding: 0px 5px;
+}
+
+.botonComprar {
+    width: 200px;
+    height: 45px;
+    color: white;
+    background-color: rgb(42, 109, 255);
+    border: none;
+    border-radius: 6px;
+    margin: 15px 40%;
+    font-size: 16px;
+}
+
+.botonComprar:hover {
+    background-color: rgb(28, 85, 206);
+} 
+

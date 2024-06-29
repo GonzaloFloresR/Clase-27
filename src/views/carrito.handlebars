@@ -10,16 +10,21 @@
 <main>
     <div id="container">
         <h1>Viendo Carrito: {{carrito._id}}</h1>
-        <div id="productos">
-            
+        <div id="carrito">    
             {{#each carrito.products}}
-                <ul>
-                    <li><h3>{{productId.title}}</h3></li>
+                <ul class="itemCarrito" data-product-id="{{productId._id}}">
+                    <li>{{productId.title}}</li>
                     <li><img src={{productId.thumbnail}} /></li>
-                    <li><h4>Price: ${{productId.price}}</h4></li>
-                    <li>Cantidad :{{quantity}}</li>
+                    <li>${{productId.price}}</li>
+                    <li><div class="CantidadProducto">
+                            <input type="button" value="−" name="descontar" onclick="modificar('{{productId._id}}','{{../carrito._id}}','quitar')" />
+                            <input type="text" name="MostrarQuantity" value="{{quantity}}">
+                            <input type="button" value="+" name="agregar" onclick="modificar('{{productId._id}}','{{../carrito._id}}','agregar' )" />
+                    </div></li>
+                    <li class="eliminar"><button onclick="eliminarProducto('{{productId._id}}','{{../ carrito._id}}','{{quantity}}')" > ❌ </button></li>
                 </ul>
             {{/each}}
+            <input type="button" class="botonComprar" onclick="ticketCompra('{{carrito._id}}')" value="Confirmar Compra" />
         </div>
     </div>
 </main>
@@ -28,4 +33,6 @@
         <li><a href="/products">Seguir Comprando</a></li>
     </ul>
 </footer>
+<script src="/js/productos.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 

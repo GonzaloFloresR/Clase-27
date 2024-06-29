@@ -18,25 +18,26 @@ export default class CartsController {
             return res.status(400).json({error:`Hace falta un id valido de carrito`});
         }
         let carrito = await cartsService.getCartByID_Populate(cid);
+        if(carrito.products.length === 0){
+            res.setHeader('Content-Type','application/json');
+            return res.status(400).json({error:`No hay productos en carrito para facturar`});
+        }
         let amount = 0;
         carrito.products.forEach(producto => {
             amount +=  producto.quantity * producto.productId.price;
         });
+        
 
         let purchaser = req.session.usuario.email;
         let code = new Date().getTime();
         let purchase_datetime = new Date();
         
         //El Stock se verificó antes de agregarlo al carrito ✅
-        let itemized_receipt = {};
-        carrito.products.forEach((producto, index) => {
-            const nombrePropiedad = `prod${index}`;
-            itemized_receipt[nombrePropiedad] = {producto: producto.productId.title, price:producto.productId.price, quantity:producto.quantity};
-        });
-        console.log(itemized_receipt);
-        let ticket = {code, purchase_datetime, itemized_receipt,amount, purchaser}
+        carrito.products = [];
+
+        let ticket = {code, purchase_datetime, amount, purchaser}
         let Newticket = await ticketsService.createNewTicket(ticket);
-        //let eliminarProductos = await cartsService.updateCart(cid,{});
+        let eliminarProductos = await cartsService.updateCart(cid, carrito);
         //console.log(eliminarProductos);
 
         res.setHeader('Content-Type','application/json');
@@ -190,11 +191,11 @@ export default class CartsController {
     static modifyCartProducsById = async(request, response) => {
         let {cid,pid }= request.params
         let {cantidad} = request.body;
+        
         cantidad = Number(cantidad);
-        if(!cantidad || typeof cantidad != Number){
+        if(!cantidad || typeof cantidad != "number"){
             cantidad = 1;
         }
-        
         if(!isValidObjectId(cid) || !isValidObjectId(pid) ){
             response.setHeader('Content-Type','application/json');
             return response.status(400).json({error:"Verifique que los IDs ingresados sean validos"});
@@ -226,24 +227,41 @@ export default class CartsController {
         if(producto.stock <= 0){
             response.setHeader('Content-Type','application/json');
             return response.status(400).json({error:`No hay suficiente stock disponible del producto con ID: ${pid}`});
-        } 
+        }
+        if(producto.stock < cantidad){
+            response.setHeader('Content-Type','application/json');
+            return response.status(400).json({error:`Solo hay ${producto.stock} items del producto ${pid} y usted pidio ${cantidad}`});
+        }
 
         const ProductoEnCarrito = carrito.products.find(produ => produ.productId._id == pid);
         if(ProductoEnCarrito){
             try {
-                await productsService.updateProduct(pid, {"$inc":{"stock":-cantidad}});  
-                ProductoEnCarrito.quantity = cantidad + ProductoEnCarrito.quantity;
+                let stockActualizado = await productsService.updateProduct(pid, {"$inc":{"stock":-cantidad}});
+                
+                if(stockActualizado){ 
+                    ProductoEnCarrito.quantity = ProductoEnCarrito.quantity + cantidad ;
+                }
             }
             catch(error){error.message} 
             
-        } else {
-            carrito.products.push({"productId": pid, "quantity":cantidad});
+        } else {    
+            try {
+                let stockActualizado = await productsService.updateProduct(pid, {"$inc":{"stock":-cantidad}});
+                if(stockActualizado){
+                    carrito.products.push({"productId": pid, "quantity":cantidad});
+                }
+            }
+            catch(error){
+                response.setHeader('Content-Type','application/json');
+                return response.status(400).json({error:`Error inesperado en el servidor intente nuevamente`});
+            }
+            
         }
             try {
                 let resuelto = await cartsService.updateCart(cid, carrito);
                 if(resuelto){
                     response.setHeader('Content-Type','application/json');
-                    return response.status(200).json({"succes":`${cantidad} Producto/s ${pid}, agregado/s en carrito ${cid}`});
+                    return response.status(200).json({succes:`${cantidad} Producto/s ${pid}, agregado/s en carrito ${cid}`});
                 }
             }
             catch(error){
@@ -283,8 +301,13 @@ export default class CartsController {
     }
 
     static deleteProductFromCart = async(request, response) => {
-        let {cid,pid } = request.params;
-        let {cantidad} = request.body;
+        let { cid,pid } = request.params;
+        let { cantidad } = request.body;
+
+        cantidad = Number(cantidad);
+        if(!cantidad || typeof cantidad != "number"){
+            cantidad = 1;
+        }
 
         if(!isValidObjectId(cid) || !isValidObjectId(pid) ){
             response.setHeader('Content-Type','application/json');
