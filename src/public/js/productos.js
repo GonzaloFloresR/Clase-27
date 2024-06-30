@@ -29,8 +29,13 @@ const comprar = async(pid) => {
     catch(error){error.menssage} 
 }
 // ###################################################################
-const eliminarProducto = async(pid, cid, cantidad) => {
+const eliminarProducto = async(pid, cid) => {
     console.log("Eliminar Producto: ",pid, "del Carrito :",cid);
+    
+    const producto = document.querySelector(`[data-product-id="${pid}"]`);
+    const inputMostrarQuantity = producto.querySelector('input[name="MostrarQuantity"]');
+    let cantidad = parseInt(inputMostrarQuantity.value);
+
     const respuesta = await Swal.fire({
         title: "¿Esta seguro?",
         text: "¿Desea eliminar el producto del carrito?",
@@ -113,6 +118,7 @@ const modificar = async(pid, cid, funcion) => {
     let quantity = parseInt(inputMostrarQuantity.value);
     
     if(funcion == "agregar"){
+        console.log("agregando")
         let cantidad = 1;
         let respuesta = await fetch(`/api/carts/${cid}/products/${pid}`,{
             method:"PUT",
@@ -141,34 +147,57 @@ const modificar = async(pid, cid, funcion) => {
             });
         }
     }
-    else{
+    else {
+        console.log("quitando")
         let cantidad = -1;
-        let respuesta = await fetch(`/api/carts/${cid}/products/${pid}`,{
-            method:"PUT",
-            headers:{"Content-Type":"application/json"},
-            body:JSON.stringify({cantidad})
-        });
-        if(respuesta.ok){
-            let eliminado = await respuesta.json();
-            inputMostrarQuantity.value = quantity - 1;
-            Swal.fire({
-                position: "top-end",
-                icon: "success",
-                title: "Producto eliminado",
-                showConfirmButton: false,
-                timer: 1500
-            });
+        if(quantity == 1){
+            try {
+                let respuesta = await fetch(`/api/carts/${cid}/products/${pid}`,{
+                    method:"DELETE",
+                    headers:{"Content-Type":"application/json"},
+                    body:JSON.stringify({cantidad})
+                });
+                if(respuesta.ok){
+                    let eliminado = await respuesta.json();
+                    inputMostrarQuantity.value = quantity - 1;
+                    Swal.fire({
+                        position: "top-end",
+                        icon: "success",
+                        title: "Producto eliminado",
+                        showConfirmButton: false,
+                        timer: 1500
+                    });
+                }
+            } catch(error){console.log(error)}
         } else {
-            let Error = await respuesta.json();
-            Swal.fire({
-                position: "top-end",
-                icon: "error",
-                title: "Error al intentar eliminar",
-                text: Error.error,
-                showConfirmButton: false,
-                timer: 1500
+            let respuesta = await fetch(`/api/carts/${cid}/products/${pid}`,{
+                method:"PUT",
+                headers:{"Content-Type":"application/json"},
+                body:JSON.stringify({cantidad})
             });
+            if(respuesta.ok){
+                let eliminado = await respuesta.json();
+                inputMostrarQuantity.value = quantity - 1;
+                Swal.fire({
+                    position: "top-end",
+                    icon: "success",
+                    title: "Producto eliminado",
+                    showConfirmButton: false,
+                    timer: 1500
+                });
+            } else {
+                    let Error = await respuesta.json();
+                    Swal.fire({
+                        position: "top-end",
+                        icon: "error",
+                        title: "Error al intentar eliminar",
+                        text: Error.error,
+                        showConfirmButton: false,
+                        timer: 1500
+                    });
+            }
         }
+        
     }
     
 }

@@ -21,7 +21,7 @@
                             <input type="text" name="MostrarQuantity" value="{{quantity}}">
                             <input type="button" value="+" name="agregar" onclick="modificar('{{productId._id}}','{{../carrito._id}}','agregar' )" />
                     </div></li>
-                    <li class="eliminar"><button onclick="eliminarProducto('{{productId._id}}','{{../ carrito._id}}','{{quantity}}')" > ❌ </button></li>
+                    <li class="eliminar"><button onclick="eliminarProducto('{{productId._id}}','{{../ carrito._id}}')" > ❌ </button></li>
                 </ul>
             {{/each}}
             <input type="button" class="botonComprar" onclick="ticketCompra('{{carrito._id}}')" value="Confirmar Compra" />

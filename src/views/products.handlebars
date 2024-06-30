@@ -6,6 +6,7 @@
         <div id="LogoHeader">Lista del Sol</div>
         <div id="MenuHeader">{{>menu}}</div>
     </div>
+    <div id="PostHeader"><a href="/carrito/{{carrito}}">Ir a Carrito</a></div>
 </header>
 <main>
     <div id="container">
@@ -27,11 +28,7 @@
     </div>
 </main>
 <footer>
-    
-    
     <input type="text" value="{{carrito}}" id="carrito" hidden />
-    <a href="/carrito/{{carrito}}">Ir a Carrito</a>
-    
     <ul>
         {{#if pageInfo.hasPrevPage}}
             <li><a href="http://localhost:8080/products?limit={{pageInfo.limit}}&page={{pageInfo.prevPage}}"> <<< Pag. Anterior</a></li> 
