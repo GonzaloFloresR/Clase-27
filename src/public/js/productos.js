@@ -31,7 +31,7 @@ const comprar = async(pid) => {
 // ###################################################################
 const eliminarProducto = async(pid, cid) => {
     console.log("Eliminar Producto: ",pid, "del Carrito :",cid);
-    
+
     const producto = document.querySelector(`[data-product-id="${pid}"]`);
     const inputMostrarQuantity = producto.querySelector('input[name="MostrarQuantity"]');
     let cantidad = parseInt(inputMostrarQuantity.value);
@@ -151,24 +151,41 @@ const modificar = async(pid, cid, funcion) => {
         console.log("quitando")
         let cantidad = -1;
         if(quantity == 1){
-            try {
-                let respuesta = await fetch(`/api/carts/${cid}/products/${pid}`,{
-                    method:"DELETE",
-                    headers:{"Content-Type":"application/json"},
-                    body:JSON.stringify({cantidad})
-                });
-                if(respuesta.ok){
-                    let eliminado = await respuesta.json();
-                    inputMostrarQuantity.value = quantity - 1;
+            const respuesta = await Swal.fire({
+                title: "¿Esta seguro?",
+                text: "¿Desea eliminar el producto del carrito?",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Si, eliminarlo"
+            });
+            let eliminado;
+            if(respuesta.isConfirmed){
+                try {
+                    let eliminado = await fetch(`/api/carts/${cid}/products/${pid}`,{method:"DELETE"});
+                    if(eliminado.ok){
+                        Swal.fire({
+                            position: "top-end",
+                            icon: "success",
+                            title: "Producto eliminado",
+                            showConfirmButton: false,
+                            timer: 1500
+                        });
+                        producto.remove();
+                    } 
+                } catch(error){
+                    let mensaje = await eliminado.json();
                     Swal.fire({
                         position: "top-end",
-                        icon: "success",
-                        title: "Producto eliminado",
+                        icon: "error",
+                        title: "Error al eliminar",
+                        text: mensaje.error,
                         showConfirmButton: false,
                         timer: 1500
                     });
                 }
-            } catch(error){console.log(error)}
+            }
         } else {
             let respuesta = await fetch(`/api/carts/${cid}/products/${pid}`,{
                 method:"PUT",
