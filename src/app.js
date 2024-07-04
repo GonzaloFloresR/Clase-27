@@ -59,11 +59,6 @@ app.use("/api/products/", (req, res, next) => {
 app.use("/api/carts/", cartsRouter);
 app.use("/", vistasRouter);
 app.use("/api/sessions/", sessionRouter);
-app.get("/mockingproducts/",(req, res)=>{
-    res.setHeader("Content-Type","application/json");
-    return res.status(200).json({"Feliz":"Soy Yo"});
-});
-
 
 const serverHTTP = app.listen(PORT, () => console.log(`Server online en puerto ${PORT}`)); 
 const io = new Server(serverHTTP);

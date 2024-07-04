@@ -1,13 +1,26 @@
 import { Router } from "express";
 import ProductsController from "../controller/ProductsController.js";
-import { uploader } from "../utils.js";
+import { uploader, generaProducts } from "../utils.js";
 import auth from "../middleware/auth.js";
 
 const router = Router();
 
 const entorno = async () => {
+
+    router.get("/mockingproducts",(req, res) => {
+        
+        let product = [];
+        for(let i = 0; i < 100; i++){
+            
+            let element = generaProducts();
+            product.push(element); 
+        }
+
+        res.setHeader("Content-Type","application/json");
+        return res.status(200).json({status:"succes", payload: product});
+    });
     
-    router.get("/", ProductsController.getProducts);
+    router.get("/",ProductsController.getProducts);
 
     router.get("/:pid", ProductsController.getProductByPID);
     
@@ -26,7 +39,7 @@ const entorno = async () => {
     });
 
     router.delete("/:pid", auth, ProductsController.deleteProduct);
-    
+
 }
 
 entorno();

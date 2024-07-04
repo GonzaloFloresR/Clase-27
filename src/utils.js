@@ -1,5 +1,6 @@
 import multer from "multer";
 import bcrypt from "bcrypt";
+import {fakerES_MX as faker} from "@faker-js/faker";
 
 import {fileURLToPath} from 'url';
 import { dirname } from 'path';
@@ -29,4 +30,23 @@ export const formatearMoneda = (valor) => {
     };
     const formatoMoneda = new Intl.NumberFormat('es-CL', opciones);
     return formatoMoneda.format(valor);
+}
+
+export const generaProducts = () => {
+    let _id = faker.database.mongodbObjectId();
+    let title = faker.commerce.productName();
+    let description = faker.commerce.productDescription();
+    let price = faker.commerce.price();
+    let thumbnail = faker.image.urlPicsumPhotos();
+    let code = faker.internet.password();
+    let stock = faker.number.int({min:1, max:200});
+    return {
+        _id,
+        title,
+        description,
+        price,
+        thumbnail,
+        code,
+        stock,
+    }
 }
