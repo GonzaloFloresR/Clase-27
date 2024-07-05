@@ -2,8 +2,9 @@ import { Router } from "express";
 import ProductsController from "../controller/ProductsController.js";
 import { uploader, generaProducts } from "../utils.js";
 import auth from "../middleware/auth.js";
-import { customError } from "../utils/CustomError.js";
+import { CustomError } from "../utils/CustomError.js";
 import { argumentosProducts } from "../utils/erroresProducts.js";
+import { TIPOS_ERROR } from "../utils/EErrors.js";
 
 const router = Router();
 
@@ -25,10 +26,10 @@ const entorno = async () => {
     router.post("/mockingproducts", (req, res) => {
         let {title, description, price, code, stock } = req.body;
         if(!title){
-            customError.createrError("Argumento title faltante", argumentosProducts(req.body), "Complete la propiedad title");
+            CustomError.createrError("Argumento title faltante", argumentosProducts(req.body), "Complete la propiedad title", TIPOS_ERROR.ARGUMENTOS_INVALIDOS);
         }
-        if(price){
-            customError.createrError("Argumento price faltante", argumentosProducts(req.body), "Complete la  propiedad price");
+        if(!price){
+            CustomError.createrError("Argumento price faltante", argumentosProducts(req.body), "Complete la  propiedad price", TIPOS_ERROR.ARGUMENTOS_INVALIDOS);
         }
 
         let producto = {title, description, price, code, stock };

@@ -10,11 +10,11 @@ export const errorHandler = (error, req, res, next) => {
         
         case TIPOS_ERROR.ARGUMENTOS_INVALIDOS:
             res.setHeader("Content-Type","application/json");
-            res.status(400).json({error:`${error.message}`});
+            return res.status(400).json({error:`${error.message}`});
 
         default:
             res.setHeader("Content-Type","application/json");
-            res.status(500).json({error:`Contacte al administrador`});
+            return res.status(500).json({error:`Contacte al administrador`});
     }
 
     return next();
