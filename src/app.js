@@ -19,6 +19,7 @@ import productsRouter from "./routes/products_routers.js";
 import cartsRouter from "./routes/carts_router.js";
 import vistasRouter from "./routes/views_router.js";
 import sessionRouter from "./routes/session_router.js";
+import { errorHandler } from "./middleware/errorHandler.js";
 
 const PORT = config.PORT;
 const app = express();
@@ -59,6 +60,7 @@ app.use("/api/products/", (req, res, next) => {
 app.use("/api/carts/", cartsRouter);
 app.use("/", vistasRouter);
 app.use("/api/sessions/", sessionRouter);
+app.use(errorHandler);
 
 const serverHTTP = app.listen(PORT, () => console.log(`Server online en puerto ${PORT}`)); 
 const io = new Server(serverHTTP);
