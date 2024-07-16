@@ -1,6 +1,6 @@
 import { Router } from "express";
 import ProductsController from "../controller/ProductsController.js";
-import { uploader, generaProducts } from "../utils.js";
+import { uploader } from "../utils.js";
 import auth from "../middleware/auth.js";
 import { CustomError } from "../utils/CustomError.js";
 import { argumentosProducts } from "../utils/erroresProducts.js";
@@ -10,34 +10,6 @@ const router = Router();
 
 const entorno = async () => {
 
-    router.get("/mockingproducts",(req, res) => {
-        
-        let product = [];
-        for(let i = 0; i < 100; i++){
-            
-            let element = generaProducts();
-            product.push(element); 
-        }
-
-        res.setHeader("Content-Type","application/json");
-        return res.status(200).json({status:"succes", payload: product});
-    });
-
-    router.post("/mockingproducts", (req, res) => {
-        let {title, description, price, code, stock } = req.body;
-        if(!title){
-            CustomError.createrError("Argumento title faltante", argumentosProducts(req.body), "Complete la propiedad title", TIPOS_ERROR.ARGUMENTOS_INVALIDOS);
-        }
-        if(!price){
-            CustomError.createrError("Argumento price faltante", argumentosProducts(req.body), "Complete la  propiedad price", TIPOS_ERROR.ARGUMENTOS_INVALIDOS);
-        }
-
-        let producto = {title, description, price, code, stock };
-        res.setHeader("Content-Type","application/json");
-        return res.status(200).json({status:"succes", payload: producto});
-        
-    })
-    
     router.get("/",ProductsController.getProducts);
 
     router.get("/:pid", ProductsController.getProductByPID);

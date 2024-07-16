@@ -27,7 +27,8 @@ export default class ProductsController {
                         response.setHeader('Content-Type','application/json');
                         return response.status(200).json(productos);
                     } catch(error) {
-                        console.log(error);
+                        //console.log(error);
+                        request.logger.info(error);
                         response.setHeader('Content-Type','application/json');
                         return response.status(500).json({
                                 error:"Error inesperado en el servidor - intente más tarde",

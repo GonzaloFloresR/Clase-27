@@ -19,13 +19,17 @@ import productsRouter from "./routes/products_routers.js";
 import cartsRouter from "./routes/carts_router.js";
 import vistasRouter from "./routes/views_router.js";
 import sessionRouter from "./routes/session_router.js";
+import loggerRouter from "./routes/logger_router.js";
+import mockingRouter from "./routes/mocking_router.js";
 import { errorHandler } from "./middleware/errorHandler.js";
+import { addLogger, logger } from "./utils/logger.js";
 
 const PORT = config.PORT;
 const app = express();
 
 app.use(express.json()); 
 app.use(express.urlencoded({extended:true}));
+app.use(addLogger);
 app.use(session({
     secret:config.SECRET,
     resave:true,
@@ -60,9 +64,11 @@ app.use("/api/products/", (req, res, next) => {
 app.use("/api/carts/", cartsRouter);
 app.use("/", vistasRouter);
 app.use("/api/sessions/", sessionRouter);
+app.use("/loggertest/", loggerRouter);
+app.use("/mockingproducts/", mockingRouter);
 app.use(errorHandler);
 
-const serverHTTP = app.listen(PORT, () => console.log(`Server online en puerto ${PORT}`)); 
+const serverHTTP = app.listen(PORT, () => logger.info(`Server online en puerto ${PORT}`)); 
 const io = new Server(serverHTTP);
 
 io.on("connection", socket => {
@@ -102,9 +108,11 @@ const connDB = async () => {
     try {
         await mongoose.connect(config.MONGO_URL,
         {dbName:config.DB_NAME});
-        console.log("DB MONGO ONLINE");
+        //console.log("DB MONGO ONLINE");
+        logger.info("DB MONGO ONLINE");
     } catch (error) {
-        console.log("Error al conectar a la DB", error.message)
+        //console.log("Error al conectar a la DB", error.message);
+        logger.error("Error al conectar a la DB", error.message);
     }
 } 
 connDB();
