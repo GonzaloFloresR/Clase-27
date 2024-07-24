@@ -1,11 +1,11 @@
 config:
   # This is a test server run by team Artillery
   # It's designed to be highly scalable
-  target: http://localhost:8080/login
+  target: http://localhost:8080
   phases:
     - duration: 60
-      arrivalRate: 1
-      rampTo: 5
+      arrivalRate: 5
+    #  rampTo: 30
       name: Warm up phase
     # - duration: 60
     #   arrivalRate: 5
@@ -29,11 +29,11 @@ config:
   #     - http.response_time.p95: 75
 scenarios:
   - flow:
-      - loop:
+      #- loop:
           - get:
-              url: '/dino'
+              url: '/mockingproducts/?limit=1'
+          - post:
+              url: '/registro'
           - get:
-              url: '/pony'
-          - get:
-              url: '/armadillo'
-        count: 100
+              url: '/login'
+        #count: 100
