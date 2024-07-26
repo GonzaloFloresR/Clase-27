@@ -11,12 +11,14 @@
         <input type="password" id="password" placeholder="password" required/>
         <button type="submit">Cambiár contraseña</button>
     </form>
+    <div id="mensaje"></div>
 </body>
 
 <script>
-    document.getElementById('resetPass').addEventListener('submit', async function(event) {
+    document.getElementById("resetPass").addEventListener("submit", async function(event) {
         event.preventDefault(); // Evita que el formulario se envíe de forma tradicional
-        let password = document.getElementById('password').value;
+        let password = document.getElementById("password").value;
+        let mensaje = document.getElementById("mensaje");
         let respuesta;
         try {
             respuesta = await fetch("http://localhost:8080/resetpassword/", {
@@ -25,7 +27,8 @@
             headers: {"Content-type": "application/json; charset=UTF-8"}
         });
         if(respuesta.ok){
-            let mensaje = await respuesta.json();
+            let dato = await respuesta.json();
+            mensaje.innerHTML = dato.status;
         } else {
             console.error('Error en la respuesta:', response.status);
         }

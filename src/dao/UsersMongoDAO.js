@@ -13,7 +13,7 @@ export default class UsersMongoDAO {
 
     async updateUsuario(id, Update){
         try {
-            return await productoModelo.findByIdAndUpdate({"_id":id},Update,{runValidators:true, returnDocument:"after"});
+            return await usuariosModelo.findByIdAndUpdate({"_id":id},Update,{runValidators:true, returnDocument:"after"});
         }
         catch(error){
             console.log(error, "Error desde updateProduct");

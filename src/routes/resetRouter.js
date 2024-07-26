@@ -2,16 +2,24 @@ import { Router } from "express";
 import UsersMongoDAO from "../dao/UsersMongoDAO.js";
 import jwt from "jsonwebtoken";
 import config from "../config/config.js";
-import { enviarMail } from "../utils.js"
+import { enviarMail, generaHash, validaPassword } from "../utils.js"
+import { isValidObjectId } from "mongoose";
 
 const userDAO = new UsersMongoDAO();
 const router = Router();
 
 router.post("/", async (req, res)=>{
     let {email} = req.body;
+    
     if(!email){
         res.setHeader("Content-Type","application/json");
         return res.status(200).json({"respuesta":"Debe ingresar un correo eléctronico"});
+    }
+    const regex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
+    let valido = regex.test(email);
+    if(!valido){
+        res.setHeader("Content-Type","application/json");
+        return res.status(200).json({"respuesta":"Debe ingresar un correo eléctronico válido"});
     }
     let usuario;
     try{ usuario = await userDAO.getUsuarioBy({email});
@@ -39,62 +47,98 @@ router.post("/", async (req, res)=>{
     return res.status(200).json({"respuesta":`Recibira un correo en el Email :${email}`});
 });
 
-router.get("/ok", (req, res)=>{
+router.get("/ok", async (req, res)=>{
     let {token} = req.query;
     let SECRET = config.GITHUB_CLIENT_SECRET;
-
+    if(!token){
+        return res.status(400).redirect("http://localhost:8080/login");
+    }
     try {
     const decodedToken = jwt.verify(token, SECRET);
-    console.log(decodedToken, "Linea 48 de router.get(OK)");
+    let email = decodedToken.email;
+    let usuario = await userDAO.getUsuarioBy({email});
+    let id = usuario._id;
+    console.log(usuario, "Desde linea 60 resetRouter")
     res.setHeader("Content-Type","text/html");
     return res.status(200).send(`
         <!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Restablecer contraseña</title>
-</head>
-<body>
-    <h1>Restablecer Contraseña</h1>
-    <form id="resetPass">
-        <input type="password" id="password" placeholder="password" required/>
-        <button type="submit">Cambiár contraseña</button>
-    </form>
-</body>
+            <html lang="es">
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <title>Restablecer contraseña</title>
+                </head>
+                <body>
+                    <h1>Restablecer Contraseña</h1>
+                    <h3>Cuenta de ${usuario.first_name} ${usuario.last_name}</h3>
+                    <form id="resetPass">
+                        <input type="password" id="password" placeholder="password" required/>
+                        <button type="submit">Cambiár contraseña</button>
+                    </form>
+                    <div id="mensaje"></div>
+                </body>
 
-<script>
-    document.getElementById('resetPass').addEventListener('submit', async function(event) {
-        event.preventDefault(); // Evita que el formulario se envíe de forma tradicional
-        let password = document.getElementById('password').value;
-        let respuesta;
-        try {
-            respuesta = await fetch("http://localhost:8080/resetpassword/", {
-            method: "PUT",
-            body: JSON.stringify({password}),
-            headers: {"Content-type": "application/json; charset=UTF-8"}
-        });
-        if(respuesta.ok){
-            let mensaje = await respuesta.json();
-        } else {
-            console.error('Error en la respuesta:', response.status);
-        }
-    }
-    catch(error){console.log(error)}
-        
-    });
-</script>
-</html>
+                <script>
+                    document.getElementById("resetPass").addEventListener("submit", async function(event) {
+                        event.preventDefault(); // Evita que el formulario se envíe de forma tradicional
+                        let password = document.getElementById("password").value;
+                        let mensaje = document.getElementById("mensaje");
+                        let respuesta;
+                        try {
+                            respuesta = await fetch("http://localhost:8080/resetpassword/", {
+                            method: "PUT",
+                            body: JSON.stringify({password, id:"${id}"}),
+                            headers: {"Content-type": "application/json; charset=UTF-8"}
+                        });
+                        if(respuesta.ok){
+                            let dato = await respuesta.json();
+                            mensaje.innerHTML = dato.status;
+                        } else {
+                            let dato = await respuesta.json();
+                            mensaje.innerHTML = dato.status;
+                        }
+                    }
+                    catch(error){console.log(error)}
+                        
+                    });
+                </script>
+            </html>
         `);
     // El token es válido
     } catch (error) {
     if (error.name === 'TokenExpiredError') {
         return res.status(303).redirect("http://localhost:8080/recuperar.html");
     } else {
-        console.log(error.message)
+        return res.status(400).redirect("http://localhost:8080/login?JsonWebTokenError=true");
     }
     }
+});
 
+router.put("/", async (req, res)=>{
+    let {password, id} = req.body;
+    if(!password || password.length < 4 ){
+        res.setHeader("Content-Type","application/json")
+        return res.status(400).json({"status":"Debe ingresar un password, mínimo 4 caracteres"});
+    }
+    if(!isValidObjectId(id)){
+        res.setHeader("Content-Type","application/json")
+        return res.status(400).json({"status":"Se ha recibido un ID de usuario invalido"});
+    }
+    const usuario = await userDAO.getUsuarioBy({"_id":id});
+    let validar = validaPassword(password, usuario.password);
+    if(validar){
+        res.setHeader("Content-Type","application/json")
+        return res.status(400).json({"status":"La nueva contraseña no puede ser igual a la anterior"});
+    }
+    usuario.password = generaHash(password);
+    try{
+        let actualizado = await userDAO.updateUsuario(id,usuario);
+        if(actualizado){
+            res.setHeader("Content-Type","application/json")
+            return res.status(200).json({"status":"Contraseña Actualizada"});
+        }
+    }
+    catch(error){console.log(error.message)}
 });
 
 export default router;
