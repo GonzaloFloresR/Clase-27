@@ -21,6 +21,7 @@ import vistasRouter from "./routes/views_router.js";
 import sessionRouter from "./routes/session_router.js";
 import loggerRouter from "./routes/logger_router.js";
 import mockingRouter from "./routes/mocking_router.js";
+import resetRouter from "./routes/resetRouter.js";
 import { errorHandler } from "./middleware/errorHandler.js";
 import { addLogger, logger } from "./utils/logger.js";
 
@@ -66,6 +67,7 @@ app.use("/", vistasRouter);
 app.use("/api/sessions/", sessionRouter);
 app.use("/loggertest/", loggerRouter);
 app.use("/mockingproducts/", mockingRouter);
+app.use("/resetpassword", resetRouter)
 app.use(errorHandler);
 
 const serverHTTP = app.listen(PORT, () => logger.info(`Server online en puerto ${PORT}`)); 

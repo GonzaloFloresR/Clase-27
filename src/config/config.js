@@ -13,7 +13,8 @@ const config = {
         DB_NAME: process.env.DB_NAME,
         SECRET: process.env.SECRET,
         GITHUB_CLIENT_ID: process.env.GITHUB_CLIENT_ID,
-        GITHUB_CLIENT_SECRET: process.env.GITHUB_CLIENT_SECRET
+        GITHUB_CLIENT_SECRET: process.env.GITHUB_CLIENT_SECRET,
+        GMAIL_PASS: process.env.GMAIL_PASS
 }
 
 export default config;

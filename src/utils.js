@@ -1,9 +1,9 @@
 import multer from "multer";
 import bcrypt from "bcrypt";
-//import {fakerES_MX as faker} from "@faker-js/faker";
-
+import nodemailer from "nodemailer";
 import {fileURLToPath} from 'url';
 import { dirname } from 'path';
+import config from "./config/config.js";
 
 const __filename = fileURLToPath(import.meta.url);
 export const __dirname = dirname(__filename);
@@ -32,22 +32,25 @@ export const formatearMoneda = (valor) => {
     return formatoMoneda.format(valor);
 }
 
-/* export const generaProducts = () => {
-    let _id = faker.database.mongodbObjectId();
-    let title = faker.commerce.productName();
-    let description = faker.commerce.productDescription();
-    let price = faker.commerce.price();
-    let thumbnail = faker.image.urlPicsumPhotos();
-    let code = faker.internet.password();
-    let stock = faker.number.int({min:1, max:200});
-    return {
-        _id,
-        title,
-        description,
-        price,
-        thumbnail,
-        code,
-        stock,
+export const transporter = nodemailer.createTransport({
+    service:`gmail`,
+    port:587,
+    auth:{
+        user:`gonzalofloresr@gmail.com`,
+        pass: config.GMAIL_PASS
     }
-} */
+});
+
+export const enviarMail = async(to, subject, message, attachments) => {
+        return await transporter.sendMail({
+            from:`Lista del Sol <gonzalofloresr@gmail.com>`,
+            to: to,
+            subject: subject,
+            //text:`Mensaje en texto plano`,
+            html: message,
+            attachments: attachments
+        });
+}
+
+
 
