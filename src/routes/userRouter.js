@@ -47,16 +47,12 @@ router.get("/:uid",async(req, res)=>{
             res.setHeader("Content-Type","application/json");
             return res.status(400).json({"status":`Error, El rol de este usuario es ${rol} y no es modificable`});
         }
-
     }
     catch(error){
         console.log(error);
         res.setHeader("Content-Type","application/json");
         return res.status(400).json({"status":"Error inesperado en el servidor"});
     }
-    
-    res.setHeader("Content-Type","application/json");
-    return res.status(200).json({"status":uid})
 });
 
 export default router;
