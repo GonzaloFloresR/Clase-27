@@ -7,7 +7,7 @@ const usuarioEsquema = new mongoose.Schema({
     last_name: String,
     email:{type:String, unique:true},
     age: Number,
-    password: {type: String, unique: true, }, //required:true
+    password: {type: String, unique:true}, //required:true
     rol: {type: String, default:"user"},
     cart: {type: mongoose.Types.ObjectId, ref:"carts"}
 },{

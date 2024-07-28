@@ -8,6 +8,7 @@ const productosEsquema = new mongoose.Schema({
     price: Number,
     thumbnail: String,
     code: {type: String, unique: true, required:true},
+    owner: {type: mongoose.Types.ObjectId, ref:"usuarios"},
     stock: {type: Number, default:0}
 },{
     timestamps:true
@@ -19,6 +20,5 @@ const productoModelo = mongoose.model(
     productCollection,
     productosEsquema
 );
-
 
 export default productoModelo;

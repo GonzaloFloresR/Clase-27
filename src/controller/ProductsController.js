@@ -1,5 +1,7 @@
 import { productsService } from "../repository/productsService.js";
 import { isValidObjectId } from "mongoose";
+import UsersMongoDAO from "../dao/UsersMongoDAO.js";
+const userMongoDAO = new UsersMongoDAO();
 
 
 export default class ProductsController {
@@ -88,7 +90,7 @@ export default class ProductsController {
 
     static createProduct = async(request, response) => {
         //Recuperar todos los datos desde el cuerpo de la consulta
-        let {title,description,price,thumbnail,code,stock} = request.body;
+        let {title,description,price,thumbnail,code,stock, owner} = request.body;
         //Verificar Si recibimos imagenenes
         if (request.file){
             thumbnail = request.file.path;
@@ -103,10 +105,9 @@ export default class ProductsController {
             code = code.trim();
             try { 
                 existe = await productsService.getProductBy({code:code});
-                console.log(existe, "desde Products 105")
             }
             catch(error) {
-                console.log(error);
+                console.log(error.message);
                 response.setHeader('Content-Type','application/json');
                 return response.status(500).json(
                     {
@@ -118,21 +119,36 @@ export default class ProductsController {
             if(!existe){ 
                 if (thumbnail){
                     thumbnail = "../"+(thumbnail.split("public/")[1]);
-                }  
+                }
+                if(owner && isValidObjectId(owner)){
+                    try {
+                        const user = await userMongoDAO.getUsuarioBy({"_id":owner});
+                        if(!user){
+                            owner = "6658b17a0ea6ef506f7980fa";
+                        } else {
+                            if(user.rol != "premium" || user.rol != "admin"){
+                                response.setHeader('Content-Type','application/json');
+                                response.status(400).json({status:"error", message:"Solo usuarios admin y premium pueden agregar productos"});
+                            }
+                        }
+                    }
+                    catch(error){console.log(error.message)}
+                } else {owner = "6658b17a0ea6ef506f7980fa";}
                 let nuevoProducto = {
                     title:title,
                     description:description,
                     price:price,
                     thumbnail:thumbnail || "../img/SinImagen.png",
                     code:code,
-                    stock:stock
+                    stock:stock,
+                    owner: owner //Agregado 27 Julio ID: de Gonzalo Flores que es ADMIN
                 };
                 
                 let agregado
                 try {
                     agregado = await productsService.addProduct(nuevoProducto);
                 } catch(error) {
-                    console.log(error);
+                    console.log(error.message);
                     response.setHeader('Content-Type','application/json');
                     return response.status(500).json(
                         {
