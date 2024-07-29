@@ -126,9 +126,9 @@ export default class ProductsController {
                         if(!user){
                             owner = "6658b17a0ea6ef506f7980fa";
                         } else {
-                            if(user.rol != "premium" || user.rol != "admin"){
+                            if(user.rol != "premium"){
                                 response.setHeader('Content-Type','application/json');
-                                response.status(400).json({status:"error", message:"Solo usuarios admin y premium pueden agregar productos"});
+                                return response.status(400).json({status:"error", message:"Solo usuario Premium pueden agregar productos"});
                             }
                         }
                     }

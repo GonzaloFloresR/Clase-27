@@ -1,4 +1,9 @@
-const auth = (req, res, next) => {
+import { isValidObjectId } from "mongoose";
+import { productsService } from "../repository/productsService.js";
+import UsersMongoDAO from "../dao/UsersMongoDAO.js";
+const userDAO = new UsersMongoDAO();
+
+const auth = async(req, res, next) => {
     //console.log(req.originalUrl, "Desde auth linea 2")
     if(!req.session.usuario){
         res.setHeader("Content-Type","application/json");
@@ -6,12 +11,47 @@ const auth = (req, res, next) => {
     }
     let usuario = req.session.usuario;
     let requestMethod = req.method;
-
+    
     if(requestMethod === "GET"){
         next();
     }
     if (['POST', 'PUT', 'DELETE'].includes(requestMethod)){
-        if(usuario.rol === "admin"){
+        if(usuario.rol === "user"){
+            res.setHeader("Content-Type","application/json");
+            return res.status(401).json({error:"Solo admin o Premium pueden acceder"});
+        }
+        //Agregando Código Dom 28 Julio
+        if(['PUT', 'DELETE'].includes(requestMethod)){
+            let {pid} = req.params;
+            let producto;
+            if(!isValidObjectId(pid)){
+                res.setHeader('Content-Type','application/json');
+                return res.status(400).json({error:"Ingrese un ID Valido para MongoDB"});
+            }
+            try {
+                producto = await productsService.getProductBy({"_id":pid});
+                if(!producto){
+                    res.setHeader('Content-Type','application/json');
+                    return res.status(400).json({error:"No existe producto con ese ID"});
+                }
+            } catch(error){
+                console.log(error);
+                res.setHeader('Content-Type','application/json');
+                return res.status(500).json({error:`Error inesperado en el servidor`,detalle:`${error.message}`});
+            }
+            const owner = producto.owner;
+            if(usuario._id == owner || usuario.rol === "admin"){
+                next();
+            } else {
+                res.setHeader('Content-Type','application/json');
+                return res.status(500).json({error:`Solo el Owner del producto o un admin puede modificar el producto`});
+            }
+
+            
+        }
+        
+        //Cerrando Modificación 28 Julio
+        if(usuario.rol === "admin" || usuario.rol ==="premium"){
             next();
         } else {
             // Denegar acceso si el usuario no tiene rol "admin"
