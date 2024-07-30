@@ -1,27 +1,64 @@
-const cartsAuth = (req, res, next) => {
+import { isValidObjectId } from "mongoose";
+import { productsService } from "../repository/productsService.js";
+
+
+const cartsAuth = async (req, res, next) => {
     if(!req.session.usuario){
         res.setHeader("Content-Type","application/json");
-        return res.status(401).json({error:"No existen usuarios autenticados"});
+        return res.status(401).json({"error":"No existen usuarios autenticados"});
     }
-    let {cid} = req.params;
     let usuario = req.session.usuario;
 
-    if(req.originalUrl == "/chat" && usuario.rol === "admin"){
-        res.setHeader("Content-Type","application/json");
-        return res.status(401).json({error:"El Administrador no puede acceder al chat"});
+    if(req.originalUrl == "/chat"){
+        if(usuario.rol === "admin"){
+            res.setHeader("Content-Type","application/json");
+            return res.status(401).json({"error":"El Administrador no puede acceder al chat"});
+        } 
+        next();
     }
-
-    if(cid && usuario.cart != cid){
-        res.setHeader("Content-Type","application/json");
-        return res.status(401).json({error:"Solo puede agregar productos a su propio carrito"});
-    }
-
-    /* if(usuario.rol === "admin"){
-        res.setHeader("Content-Type","application/json");
-        return res.status(401).json({error:"El Administrador no puede comprar productos"});
-    } */
     
-    next();
+    let {cid, pid} = req.params;
+    
+    if(cid){
+        if(!isValidObjectId(cid)){
+            res.setHeader("Content-Type","application/json");
+            return res.status(401).json({"error":"Debe ingresar un Id de carrito válido"});
+        }
+
+        if(usuario.rol === "admin"){
+            next();
+        }
+        
+        if(usuario.cart != cid){
+            res.setHeader("Content-Type","application/json");
+            return res.status(400).json({"error":"Solo puede agregar productos a su propio carrito"});
+        }
+
+        if(pid){
+            if(!isValidObjectId(pid)){
+                res.setHeader("Content-Type","application/json");
+                return res.status(400).json({"error":"Debe ingresar un Id de producto válido"});
+            }
+            let producto;
+            try {
+                producto = await productsService.getProductBy({"_id":pid});
+                if(!producto){
+                    res.setHeader("Content-Type","application/json");
+                    return res.status(400).json({"error":`No existe producto con el Id ${pid}`});
+                }
+                if(usuario.rol === "premium" && producto.owner == usuario._id){
+                        res.setHeader("Content-Type","application/json");
+                        return res.status(400).json({"error":`Usted es Owner de este Producto, no puede agregarlo al carrito`});
+                } else {
+                    next();
+                }
+            }
+            catch(error){
+                console.log(error);
+                
+            }
+        } 
+    }
 }
 
 export default cartsAuth;

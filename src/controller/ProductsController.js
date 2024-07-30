@@ -206,63 +206,46 @@ export default class ProductsController {
                 } catch(error){
                     console.log(error);
                     response.setHeader('Content-Type','application/json');
-                    return response.status(500).json(
-                        {
-                            error:`Error inesperado en el servidor`,
-                            detalle:`${error.message}`
-                        }
-                    );
+                    return response.status(500).json({error:`Error inesperado en el servidor`,detalle:`${error.message}`});
                 }
-                if(producto){
-                    let modificado;
-                    let modificaciones = request.body;
-                    console.log(modificaciones);
-                    if(modificaciones._id){
-                        
-                        delete modificaciones._id; 
-                    }
-                    if(modificaciones.code){
-                        try {
+                if(!producto){
+                    response.setHeader('Content-Type','application/json');
+                    return response.status(400).json({error:`No existe un producto con el ID ${pid}`});
+                }
+                let modificado;
+                let modificaciones = request.body;
+                if(modificaciones._id){
+                    delete modificaciones._id; 
+                }
+                if(modificaciones.code){
+                    try {
                             let existe = await productsService.getProductBy({_id:{$ne:pid},code:modificaciones.code});
                             if(existe){
                                 response.setHeader('Content-Type','application/json');
                                 return response.status(400).json({error:`Ya existe un producto con el code ${modificaciones.code}`});
                             }
                         }
-                        catch(error){
-                            console.log(error);
-                            response.setHeader('Content-Type','application/json');
-                            return response.status(500).json(
-                                {
-                                    error:`Error inesperado en el servidor`,
-                                    detalle:`${error.message}`
-                                }
-                            );
-                        }
-                    }
-                    try {
-                        modificado = await productsService.updateProduct(pid, modificaciones);
-                    } catch(error){
+                    catch(error){
                         console.log(error);
                         response.setHeader('Content-Type','application/json');
-                        return response.status(500).json(
-                            {
-                                error:`Error inesperado en el servidor`,
-                                detalle:`${error.message}`
-                            }
-                        );
-                    } if(modificado){
-                        request.io.emit("ProductoActualizado", modificado);
-                        response.setHeader('Content-Type','application/json');
-                        return response.status(200).json({modificado});
-                    } else {
+                        return response.status(500).json({error:`Error inesperado en el servidor`,detalle:`${error.message}`});
+                    }
+                }
+                try {
+                    modificado = await productsService.updateProduct(pid, modificaciones);
+                    if(!modificado){
                         response.setHeader('Content-Type','application/json');
                         return response.status(500).json({status:"error", message:`No se pudo modificar ID ${pid}`});
                     }
-                } else {
+                    request.io.emit("ProductoActualizado", modificado);
                     response.setHeader('Content-Type','application/json');
-                    return response.status(400).json({error:`No existe un producto con el ID ${pid}`});
-                }
+                    return response.status(200).json({modificado});
+                } 
+                catch(error){
+                    console.log(error);
+                    response.setHeader('Content-Type','application/json');
+                    return response.status(500).json({error:`Error inesperado en el servidor`,detalle:`${error.message}`});
+                } 
             }
     }
 

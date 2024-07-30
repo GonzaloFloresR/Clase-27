@@ -4,8 +4,6 @@ import { isValidObjectId } from "mongoose";
 import { ticketsService } from "../repository/ticketsService.js";
 
 
-
-
 export default class CartsController {
     static purchase = async(req, res) => {
         if(!req.session.usuario){
