@@ -14,7 +14,7 @@ const cartsAuth = async (req, res, next) => {
             res.setHeader("Content-Type","application/json");
             return res.status(401).json({"error":"El Administrador no puede acceder al chat"});
         } 
-        next();
+        return next();
     }
     
     let {cid, pid} = req.params;
@@ -25,11 +25,13 @@ const cartsAuth = async (req, res, next) => {
             return res.status(401).json({"error":"Debe ingresar un Id de carrito válido"});
         }
 
-        if(usuario.rol === "admin"){
-            next();
+        if(usuario.rol == "admin"){
+            console.log("desde linea 29", usuario.rol);
+            return next();
         }
-        
+
         if(usuario.cart != cid){
+            console.log("desde linea 34 igual llego aquí");
             res.setHeader("Content-Type","application/json");
             return res.status(400).json({"error":"Solo puede agregar productos a su propio carrito"});
         }
@@ -50,7 +52,7 @@ const cartsAuth = async (req, res, next) => {
                         res.setHeader("Content-Type","application/json");
                         return res.status(400).json({"error":`Usted es Owner de este Producto, no puede agregarlo al carrito`});
                 } else {
-                    next();
+                    return next();
                 }
             }
             catch(error){
