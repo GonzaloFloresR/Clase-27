@@ -25,12 +25,15 @@ import resetRouter from "./routes/resetRouter.js";
 import userRouter from "./routes/userRouter.js";
 import { errorHandler } from "./middleware/errorHandler.js";
 import { addLogger, logger } from "./utils/logger.js";
+import swaggerUIExpress from "swagger-ui-express";
+import specs from "./utils/swaggerOptions.js";
 
 const PORT = config.PORT;
 const app = express();
 
 app.use(express.json()); 
 app.use(express.urlencoded({extended:true}));
+app.use('/apidocs', swaggerUIExpress.serve, swaggerUIExpress.setup(specs));
 app.use(addLogger);
 app.use(session({
     secret:config.SECRET,

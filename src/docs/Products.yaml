@@ -1,0 +1,157 @@
+openapi: 3.0.0
+info:
+  title: API de Lista del Sol
+  description: Para compre.
+  version: 1.0.0
+paths:
+  /api/products/:
+    get:
+      summary: Obtener lista de artículos
+      tags: 
+        - Products
+      responses:
+        '200':
+          description: success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/product'
+        '500':
+          description: Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Error inesperado en el servidor - intente más tarde
+                  detalle:
+                    type: string
+                    example: Error especifico
+    post:
+      summary: Crear un Producto
+      tags: 
+        - Products
+      responses:
+        '201':
+          description: success Producto Creado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  payload:
+                    type: object
+                    properties:
+                      _id:
+                        type: string
+                        format: ObjectId
+                      title:
+                        type: string
+                      description:
+                        type: string
+                      price:
+                        type: number
+                      thumbnail:
+                        type: string
+                      code:
+                        type: string
+                        required: true
+                      owner:
+                        type: string
+                        format: ObjectId
+                      stock:
+                        type: integer
+                      createdAt:
+                        type: string
+                      updatedAt:
+                        type: string
+                      __v:
+                        type: integer
+                      id:
+                        type: string
+                        format: ObjectId
+        '400':
+          description: valores requeridos title, description, price, code, stock
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '400_DUPLICATE':
+          description: Campos requeridos faltantes
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '400_INVALID':
+          description: Datos de producto inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/products/{pid}:
+    get:
+      summary: Obtener producto por ID
+      parameters:
+        - in: path
+          name: pid
+          schema:
+            type: string
+            format: ObjectId
+          required: true
+          description: ObjectId of the product
+      tags: 
+        - Products
+      responses:
+        '200':
+          description: success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/product'
+
+
+components:
+  schemas:
+    product:
+      type: object
+      properties:
+        _id:
+          type: string
+          format: ObjectId
+        title:
+          type: string
+        description:
+          type: string
+        price:
+          type: number
+        thumbnail:
+          type: string
+        code:
+          type: string
+          required: true
+        owner:
+          type: string
+          format: ObjectId
+        stock:
+          type: integer
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+        __v:
+          type: integer
+        id:
+          type: string
+          format: ObjectId
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Mensaje de error
