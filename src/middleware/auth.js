@@ -47,6 +47,14 @@ const auth = async(req, res, next) => {
                 return res.status(500).json({error:`Error inesperado en el servidor`,detalle:`${error.message}`});
             }
         }
+        if(['POST'].includes(requestMethod)){
+            if(usuario.rol != "premium" && usuario.rol != "admin" ){
+                res.setHeader("Content-Type","application/json");
+                return res.status(401).json({error:"Solo admin o Premium pueden acceder"});
+            } else {
+                return next();
+            }
+        }
         
         //Cerrando Modificación 28 Julio
         // if(usuario.rol === "admin" || usuario.rol ==="premium"){

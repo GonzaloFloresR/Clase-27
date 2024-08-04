@@ -89,6 +89,7 @@ export default class ProductsController {
     }
 
     static createProduct = async(request, response) => {
+        console.log("Estoy en la fila 92 createProduct")
         //Recuperar todos los datos desde el cuerpo de la consulta
         let {title,description,price,thumbnail,code,stock, owner} = request.body;
         //Verificar Si recibimos imagenenes
@@ -128,7 +129,7 @@ export default class ProductsController {
                         } else {
                             if(user.rol != "premium"){
                                 response.setHeader('Content-Type','application/json');
-                                return response.status(400).json({status:"error", message:"Solo usuario Premium pueden agregar productos"});
+                                return response.status(400).json({error:"Solo usuario Premium pueden agregar productos"});
                             }
                         }
                     }
