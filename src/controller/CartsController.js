@@ -68,7 +68,7 @@ export default class CartsController {
         
         if(!isValidObjectId(cid)){
             response.setHeader('Content-Type','application/json');
-            return response.json({error:"Ingrese un ID Valido de Mongo"});
+            return response.status(400).json({error:"Ingrese un ID Valido de Mongo"});
         } else {
             try {
                 let carrito = await cartsService.getCartByID_Populate(cid);
@@ -122,11 +122,11 @@ export default class CartsController {
         let {cid} = request.params;  //[{productId:"x",quantity:1},{productId:"y",quantity:1},{productId:"z",quantity:1}]
         if(!products){
             response.setHeader('Content-Type','application/json');
-            return response.status(400).json({status:"error", error:"Debe Agregar productos al carrito"});
+            return response.status(400).json({error:"Debe Agregar productos al carrito"});
         }
         if(!isValidObjectId(cid)){
             response.setHeader('Content-Type','application/json');
-            return response.status(400).json({status:"error", error:"Debe ingresar un Id Mongo Valido"});
+            return response.status(400).json({error:"Debe ingresar un Id Mongo Valido"});
         }
         // crear Array de pid´s recibidos para agregar
         let pids = products.map(produ => produ.productId);
@@ -158,7 +158,7 @@ export default class CartsController {
                     return response.status(200).json({status:"Productos Agregados"});
                 } else {
                     response.setHeader('Content-Type','application/json');
-                    response.status(400).json({status:"error", message:"El producto no se pudo agregar"})
+                    response.status(400).json({error:"El producto no se pudo agregar"})
                 }    
             } catch(error){console.log(error);}            
         } else {

@@ -1,14 +1,14 @@
 openapi: 3.0.0
 info:
   title: API de Lista del Sol
-  description: E-Commerce CRUD Carts
+  description: E-Commerce - CRUD Productos
   version: 1.0.0
 paths:
-  /api/carts/:
+  /api/products/:
     get:
       summary: Obtener lista de artículos
       tags: 
-        - Carts
+        - Products
       responses:
         '200':
           description: success
@@ -17,7 +17,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/cart'
+                  $ref: '#/components/schemas/product'
         '400':
           description: Error
           content:
@@ -44,7 +44,7 @@ paths:
     post:
       summary: Crear un Producto
       tags: 
-        - Carts
+        - Products
       requestBody:
         description: Datos requeridos por el endpoint
         required: true
@@ -139,7 +139,7 @@ paths:
                     type: string
                     example: Error especifico
 
-  /api/carts/{pid}:
+  /api/products/{pid}:
     get:
       summary: Obtener producto por ID
       parameters:
@@ -151,7 +151,7 @@ paths:
           required: true
           description: ObjectId del producto
       tags: 
-        - Carts
+        - Products
       responses:
         '200':
           description: Producto Obtenido
@@ -203,7 +203,7 @@ paths:
           required: true
           description: ObjectId del producto
       tags: 
-        - Carts
+        - Products
       requestBody:
         description: Datos requeridos por el endpoint
         required: true
@@ -292,7 +292,7 @@ paths:
           required: true
           description: ObjectId del producto
       tags: 
-        - Carts
+        - Products
       responses:
         '200':
           description: Producto Eliminado exitosamente
@@ -341,32 +341,64 @@ paths:
                     type: string
                     example: Error especifico
 
-
-
 components:
   schemas:
-    cart:
-        type: object
-        properties:
-          _id:
-            type: string
-          products:
-            type: array
-            items: {}
-          createdAt:
-              type: string
-              format: date-time
-          updatedAt:
-            type: string
-            format: date-time
-          __v:
-            type: integer
-          required:
-            - _id
-            - products
-            - createdAt
-            - updatedAt
-            - __v
+    product:
+      type: object
+      properties:
+        _id:
+          type: string
+          format: ObjectId
+          description: Id autogenerado por MongoDB
+          example: 66a6dbcebcf83d8b420f898a
+        title:
+          type: string
+          description: "Descripción corta del producto"
+          example: "Pulpo fresco"
+        description:
+          type: string
+          description:  Descripción más detallada del producto
+          example: "Riquisimo Pulpo fresco del Oceano Pacífico"
+        price:
+          type: number
+          example: 32000
+        thumbnail:
+          type: string
+          format: url
+          example: "../img/Pulpo.jpeg"
+        code:
+          type: string
+          description: No se puede repetir dentro de la Base de Datos
+          example: "Octopus008"
+          required: true
+          unique: true
+        owner:
+          type: string
+          description: Id del Provedor del producto
+          example: 666307ea1d8fa9726e252555
+          format: ObjectId
+        stock:
+          type: integer
+          description: Cantidad de productos en stock
+          example: 10
+        createdAt:
+          type: string
+          format: Date
+          example: "2024-07-28T23:25:21.447Z"
+          description: Información autogenerada por MongoDB
+        updatedAt:
+          type: string
+          format: Date
+          example: "2024-07-29T12:54:01.228Z"
+          description: Información autogenerada por MongoDB
+        __v:
+          type: integer
+          description: Información autogenerada por MongoDB
+        id:
+          type: string
+          format: ObjectId
+          description: Id autogenerado por MongoDB
+          example: "66a6d2fcbcf83d8b420f8868"
 
     ErrorResponse:
       type: object
