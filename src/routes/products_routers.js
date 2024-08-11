@@ -2,9 +2,9 @@ import { Router } from "express";
 import ProductsController from "../controller/ProductsController.js";
 import { uploader } from "../utils.js";
 import auth from "../middleware/auth.js";
-import { CustomError } from "../utils/CustomError.js";
-import { argumentosProducts } from "../utils/erroresProducts.js";
-import { TIPOS_ERROR } from "../utils/EErrors.js";
+//import { CustomError } from "../utils/CustomError.js";
+//import { argumentosProducts } from "../utils/erroresProducts.js";
+//import { TIPOS_ERROR } from "../utils/EErrors.js";
 
 const router = Router();
 
@@ -14,7 +14,7 @@ const entorno = async () => {
 
     router.get("/:pid", ProductsController.getProductByPID);
     
-    router.post("/",uploader.single('thumbnail'), auth, ProductsController.createProduct );
+    router.post("/", uploader.single('thumbnail'), auth, ProductsController.createProduct );
 
     router.put("/", auth,(req, res) => {
         res.setHeader('Content-Type','application/json');
