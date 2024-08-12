@@ -89,7 +89,6 @@ export default class ProductsController {
     }
 
     static createProduct = async(request, response) => {
-        console.log("Estoy en la fila 92 createProduct")
         //Recuperar todos los datos desde el cuerpo de la consulta
         let {title,description,price,thumbnail,code,stock, owner} = request.body;
         //Verificar Si recibimos imagenenes

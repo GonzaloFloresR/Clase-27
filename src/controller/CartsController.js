@@ -15,11 +15,16 @@ export default class CartsController {
             res.setHeader('Content-Type','application/json');
             return res.status(400).json({error:`Hace falta un id valido de carrito`});
         }
+        if(req.session.usuario.cart =! cid){
+            res.setHeader('Content-Type','application/json');
+            return res.status(400).json({error:`Este carrito no pertenece al usuario logeado`});
+        }
         let carrito = await cartsService.getCartByID_Populate(cid);
         if(carrito.products.length === 0){
             res.setHeader('Content-Type','application/json');
             return res.status(400).json({error:`No hay productos en carrito para facturar`});
         }
+        
         let amount = 0;
         carrito.products.forEach(producto => {
             amount +=  producto.quantity * producto.productId.price;
