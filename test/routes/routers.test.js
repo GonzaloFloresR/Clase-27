@@ -27,7 +27,6 @@ const requester =  supertest("http://localhost:8080");
 describe("Pruebas Proyecto ECommerce", function(){
     this.timeout(10000);
 
-
     describe("Pruebas Router de Products", function(){
         let IDProducto; 
 
@@ -197,9 +196,10 @@ describe("Pruebas Proyecto ECommerce", function(){
             expect(body.status).to.be.equal("Productos Agregados");
         });
 
-        it("El Router Carts en su método /:cid/products/:pid Modifica un producto PID de un carrito CID", async function(){
+        it("El Router Carts en su método PUT/:cid/products/:pid Modifica un producto PID de un carrito CID", async function(){
             this.timeout(10000);
             let cid = carrito._id;
+            
             let pid = "66a6d083bcf83d8b420f882c"; //Coca-Cola
             let { body, ok } = await requester.put(`/api/carts/${cid}/products/${pid}`)
                                                 .send({"cantidad":1})
@@ -207,7 +207,31 @@ describe("Pruebas Proyecto ECommerce", function(){
             expect(typeof body).to.be.equal("object");
             expect(body.succes).to.exist;
         });
+
+        it("El Router Carts en su método delete/:cid/products/:pid Elimina un producto PID de un Carrito CID",async function(){
+            this.timeout(10000);
+            let cid = carrito._id;
+            let pid = "66a6d083bcf83d8b420f882c"; //Coca-Cola
+            let { body, ok } = await requester.delete(`/api/carts/${cid}/products/${pid}`);
+            expect(ok).to.be.true;
+            expect(typeof body).to.be.equal("object");
+            expect(body.succes).to.exist;
+            expect(typeof body.succes).to.be.equal("string");
+        });
+
+        it("El Router Carts en su método delete/:cid elimina un carrito especificado por CID", async function(){
+            this.timeout(10000);
+            let cid = carrito._id;
+            let { body, ok } = await requester.delete(`/api/carts/${cid}`);
+            expect(ok).to.be.true;
+            expect(typeof body).to.be.equal("object");
+            expect(body.status).to.equal("succes");
+            expect(body.Eliminado).to.exist;
+        });
+
     });
+
+
 
 
 }) // Cerrando Prueba General 
