@@ -153,7 +153,7 @@ export default class CartsController {
                 for (const produ of products) {
                     let produActual = await productsService.getProductBy({"_id": produ.productId}); 
 
-                    quantity = produ.quantity;
+                    let quantity = produ.quantity; //modificado 12 de agosto
                     ProductosNormalizados.push({"productId": produActual, "quantity": quantity});
                 }
                 let Updated = [...ArrayCarrito, ...ProductosNormalizados];                

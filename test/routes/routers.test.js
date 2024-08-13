@@ -27,15 +27,15 @@ const requester =  supertest("http://localhost:8080");
 describe("Pruebas Proyecto ECommerce", function(){
     this.timeout(10000);
 
-    
+
     describe("Pruebas Router de Products", function(){
         let IDProducto; 
 
-        this.beforeEach(async function(){
+        before(async function(){
             this.timeout(10000);
-            let {body} =  await requester.post("/api/sessions/login")
-                                        .send({"usuario":"gonzalof@hotmail.com","password":"1234"});
-                                        console.log("Usuario Conectado!!!")
+                let {body} =  await requester.post("/api/sessions/login")
+                                            .send({"usuario":"gonzalof@hotmail.com","password":"1234"});
+                console.log("Usuario Conectado!!!")
         });
 
         after(async function(){
@@ -57,8 +57,8 @@ describe("Pruebas Proyecto ECommerce", function(){
         });
 
         it("El Router Products en su método GET:PID devuelve un Objeto de Producto", async function(){
-            this.timeout(10000);
-            let productoTest = await mongoose.connection.collection("products").findOne();
+            this.timeout(30000);
+            let productoTest = await mongoose.connection.collection("products").findOne({title:"Semáforo"});
             if(isValidObjectId(productoTest._id)){
                 let pid = productoTest._id;
                 let {body, status, ok } =  await requester.get(`/api/products/${pid}`);
@@ -96,7 +96,7 @@ describe("Pruebas Proyecto ECommerce", function(){
         });
 
         it(`El Router Products en su método PUT, modifica un producto PID`, async function(){
-            this.timeout(15000);
+            this.timeout(10000);
             let mockProduct = {
                 "title": "Ricas Fried Cakes",
                 "description": "Las Mejores Tortas Fritas",
@@ -160,9 +160,8 @@ describe("Pruebas Proyecto ECommerce", function(){
             ];
             let {body, ok} = await requester.post(`/api/carts/`)
                                             .send({products});
-            carrito = body;
+            carrito = {...body};
             expect(ok).to.be.true;
-            console.log(typeof body)
             expect(typeof body).to.be.equal("object");
             
             if(Array.isArray(body.products) && body.products.length>0){
@@ -174,7 +173,6 @@ describe("Pruebas Proyecto ECommerce", function(){
 
         it("El Router Carts en su método GET/:cid/purchase devuelve un objeto purchase",async function(){
             this.timeout(10000);
-
             let cid = carrito._id;
             let {body, ok} = await requester.get(`/api/carts/${cid}/purchase`);
             expect(ok).to.be.true;
@@ -186,8 +184,30 @@ describe("Pruebas Proyecto ECommerce", function(){
             
         });
 
+        it("El Router Carts en su método PUT/:CID/ Modifica un carrito CID",async function(){
+            this.timeout(10000);
+            let cid = carrito._id;
+            let products = [carrito.products[0]];
+            let carros = await mongoose.connection.collection("carts").findOne({_id: new mongoose.Types.ObjectId(cid)});
+            let { body, ok } = await requester.put(`/api/carts/${cid}`)
+                                                .send(products)
+            expect(ok).to.be.true;
+            expect(typeof body).to.be.equal("object");
+            expect(body.status).to.exist;
+            expect(body.status).to.be.equal("Productos Agregados");
+        });
 
+        it("El Router Carts en su método /:cid/products/:pid Modifica un producto PID de un carrito CID", async function(){
+            this.timeout(10000);
+            let cid = carrito._id;
+            let pid = "66a6d083bcf83d8b420f882c"; //Coca-Cola
+            let { body, ok } = await requester.put(`/api/carts/${cid}/products/${pid}`)
+                                                .send({"cantidad":1})
+            expect(ok).to.be.true;
+            expect(typeof body).to.be.equal("object");
+            expect(body.succes).to.exist;
+        });
     });
-    
+
 
 }) // Cerrando Prueba General 
