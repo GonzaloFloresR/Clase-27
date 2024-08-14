@@ -229,9 +229,18 @@ describe("Pruebas Proyecto ECommerce", function(){
             expect(body.Eliminado).to.exist;
         });
 
-    });
+    });// Cerrando Prueba Carts
 
+    describe("Pruebas Router de Session", function(){
+        it("El Router Sessions en su método POST/login ", async function(){
+            let { body, ok } = await requester.post(`/api/sessions/login`)
+                                            .send({usuario:"gonzalof@hotmail.com",password:"1234"}); 
+            expect(ok).to.be.true;
+            expect(body.status).to.be.equal("success");
+            expect(body.data.first_name).to.exist;
+        });
 
+    }); // Cerrando Prueba Router Session
 
 
 }) // Cerrando Prueba General 

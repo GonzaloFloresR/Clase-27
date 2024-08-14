@@ -26,7 +26,10 @@ router.post("/registro", passport.authenticate("registro",{failureRedirect:"/api
 router.post("/login", passport.authenticate("login",{failureRedirect:"/api/sessions/error"}), async(req, res) => {
     let usuario = new UsuarioDTO({...req.user});
     req.session.usuario = {...usuario};
-    return res.status(200).redirect("/products");
+    //return res.status(200).redirect("/products");
+    
+    res.setHeader("Content-Type","application/json");
+    return res.status(200).json({status:"success", data:usuario});
 });
 
 router.get("/logout",(req, res) => {
