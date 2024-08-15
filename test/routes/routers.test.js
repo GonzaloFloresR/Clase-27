@@ -232,12 +232,28 @@ describe("Pruebas Proyecto ECommerce", function(){
     });// Cerrando Prueba Carts
 
     describe("Pruebas Router de Session", function(){
+
         it("El Router Sessions en su método POST/login ", async function(){
             let { body, ok } = await requester.post(`/api/sessions/login`)
                                             .send({usuario:"gonzalof@hotmail.com",password:"1234"}); 
             expect(ok).to.be.true;
             expect(body.status).to.be.equal("success");
             expect(body.data.first_name).to.exist;
+        });
+
+        it("El Router Sessions en su método GET/Current ", async function(){
+            let { body, ok } = await requester.get(`/api/sessions/current`) 
+            expect(ok).to.be.true;
+            expect(typeof body.usuario).to.be.equal("object");
+            expect(body.usuario._id).to.exist;
+            expect(isValidObjectId(body.usuario._id)).to.be.true;
+        });
+
+        it("El Router Sessions en su método GET/logout ", async function(){
+            let { body, ok } = await requester.get(`/api/sessions/logout`) 
+            expect(ok).to.be.true;
+            expect(body.status).to.be.equal("success");
+            expect(body.message).to.be.equal("Usuario deslogueado");
         });
 
     }); // Cerrando Prueba Router Session

@@ -7,7 +7,7 @@ const router = Router();
 
 router.get("/error",(req, res) => {
     res.setHeader("Content-Type","application/json");
-    return res.status(500).json({error:"Fallos al autenticar"});
+    return res.status(401).json({error:"Fallos al autenticar"});
 });
 
 router.get("/github", passport.authenticate("github",{}),(req, res) => {
@@ -39,7 +39,9 @@ router.get("/logout",(req, res) => {
             return res.status(500).json({error:"Error inesperado en el servidor", detalle:`${error.message}`});
         }
     })
-    return res.status(200).redirect("/login");
+    //return res.status(200).redirect("/login");//Tengo que cambiar esto
+    res.setHeader("Content-Type","application/json");
+    return res.status(200).json({status:"success", message:"Usuario deslogueado"});
 });
 
 router.get("/current", auth,(req, res)=>{
@@ -50,7 +52,7 @@ router.get("/current", auth,(req, res)=>{
 
 router.get("*", (req, res) => {
     res.setHeader("Content-Type","application/json");
-    res.status(404).json({error:"Recurso no Encontrato"});
-})
+    return res.status(404).json({error:"Recurso no Encontrato"});
+});
 
 export default router;
